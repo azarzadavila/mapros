@@ -19,5 +19,6 @@ from mapros import views
 
 urlpatterns = [
     path("hello/", views.hello_world),
-    path('admin/', admin.site.urls),
+    path("auth/", views.signin),
+    path("admin/", admin.site.urls),
 ]

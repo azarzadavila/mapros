@@ -96,6 +96,18 @@ AUTH_PASSWORD_VALIDATORS = [
 ]
 
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "mapros.authentification.ExpiringTokenAuthentication",  # custom authentication class
+    ),
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+    "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],
+}
+
+
+TOKEN_EXPIRED_AFTER_SECONDS = 86400
+
+
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
 
