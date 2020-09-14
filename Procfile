@@ -1,1 +1,1 @@
-web: gunicorn ruelle.wsgi --log-file -
+web: gunicorn mapros.wsgi --log-file -
