@@ -15,7 +15,9 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path
+from mapros import views
 
 urlpatterns = [
+    path("hello/", views.hello_world),
     path('admin/', admin.site.urls),
 ]
