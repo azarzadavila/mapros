@@ -1,0 +1,1 @@
+postgres://maprosadmin:localpass@localhost:5432/maprosdb
