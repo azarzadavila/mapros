@@ -44,6 +44,7 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework.authtoken",
     "drf_yasg",
+    "authentification.apps.AuthentificationConfig",
 ]
 
 MIDDLEWARE = [
@@ -99,7 +100,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 REST_FRAMEWORK = {
     "DEFAULT_AUTHENTICATION_CLASSES": (
-        "mapros.authentification.ExpiringTokenAuthentication",  # custom authentication class
+        "authentification.authentification.ExpiringTokenAuthentication",  # custom authentication class
     ),
     "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
     "DEFAULT_PARSER_CLASSES": ["rest_framework.parsers.JSONParser"],

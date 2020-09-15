@@ -15,7 +15,7 @@ Including another URLconf
 """
 from django.conf.urls import url
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, include
 from drf_yasg import openapi
 from drf_yasg.views import get_schema_view
 from rest_framework import permissions
@@ -47,7 +47,7 @@ urlpatterns = [
         r"^redoc/$", schema_view.with_ui("redoc", cache_timeout=0), name="schema-redoc"
     ),
     # -- #
+    path("", include("authentification.urls")),
     path("hello/", views.hello_world),
-    path("auth/", views.SignIn.as_view()),
     path("admin/", admin.site.urls),
 ]
