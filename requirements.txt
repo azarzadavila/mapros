@@ -3,3 +3,6 @@ gunicorn
 django-heroku
 djangorestframework
 dj-database-url
+uritemplate
+pyyaml
+drf-yasg
