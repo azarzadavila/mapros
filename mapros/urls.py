@@ -48,6 +48,6 @@ urlpatterns = [
     ),
     # -- #
     path("hello/", views.hello_world),
-    path("auth/", views.signin),
+    path("auth/", views.SignIn.as_view()),
     path("admin/", admin.site.urls),
 ]
