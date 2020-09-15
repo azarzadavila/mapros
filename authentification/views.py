@@ -10,6 +10,7 @@ from authentification.serializers import (
     SignInSerializer,
     TokenUser,
     TokenUserSerializer,
+    TokenCheckSerializer,
 )
 
 
@@ -44,3 +45,26 @@ class SignIn(APIView):
         token_user = TokenUser(token=token.key, user=user)
         token_user_serialized = TokenUserSerializer(token_user)
         return Response(token_user_serialized.data, status=status.HTTP_200_OK,)
+
+
+class TokenCheck(APIView):
+    """
+    Checks the given token
+    """
+
+    permission_classes = [AllowAny]
+
+    @swagger_auto_schema(
+        query_serializer=TokenCheckSerializer,
+        responses={
+            200: "The token is correct",
+            400: "If the token is incorrect or bad format",
+        },
+    )
+    def post(self, request, format=None):
+        token_check_serializer = TokenCheckSerializer(data=request.data)
+        if token_check_serializer.is_valid():
+            return Response(status=status.HTTP_200_OK)
+        return Response(
+            data=token_check_serializer.errors, status=status.HTTP_400_BAD_REQUEST
+        )
