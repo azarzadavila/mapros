@@ -7,3 +7,4 @@ uritemplate
 pyyaml
 drf-yasg
 django-cors-headers
+packaging
