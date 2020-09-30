@@ -6,3 +6,4 @@ dj-database-url
 uritemplate
 pyyaml
 drf-yasg
+django-cors-headers
