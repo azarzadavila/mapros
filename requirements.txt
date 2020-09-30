@@ -1,6 +1,5 @@
 appdirs==1.4.4
 asgiref==3.2.10
-attrs @ file:///tmp/build/80754af9/attrs_1600298409949/work
 backcall==0.2.0
 black==19.10b0
 certifi==2020.6.20
@@ -19,10 +18,8 @@ drf-yasg==1.17.1
 gunicorn==20.0.4
 idna==2.10
 inflection==0.5.1
-ipython @ file:///tmp/build/80754af9/ipython_1598883821407/work
 ipython-genutils==0.2.0
 itypes==1.2.0
-jedi @ file:///tmp/build/80754af9/jedi_1598371611696/work
 Jinja2==2.11.2
 Markdown==3.2.2
 MarkupSafe==1.1.1
@@ -32,24 +29,17 @@ parso==0.7.0
 pathspec==0.7.0
 pexpect==4.8.0
 pickleshare==0.7.5
-prompt-toolkit @ file:///tmp/build/80754af9/prompt-toolkit_1598885458782/work
 psycopg2==2.8.6
 ptyprocess==0.6.0
-Pygments @ file:///tmp/build/80754af9/pygments_1600458456400/work
 pyparsing==2.4.7
 pytz==2020.1
 PyYAML==5.3.1
-regex @ file:///tmp/build/80754af9/regex_1596829684054/work
 requests==2.24.0
 ruamel.yaml==0.16.12
 ruamel.yaml.clib==0.2.2
 six==1.15.0
 sqlparse==0.3.1
-toml @ file:///tmp/build/80754af9/toml_1592853716807/work
-traitlets @ file:///tmp/build/80754af9/traitlets_1600712396819/work
 typed-ast==1.4.1
-typing-extensions @ file:///tmp/build/80754af9/typing_extensions_1598376058250/work
 uritemplate==3.0.1
 urllib3==1.25.10
-wcwidth @ file:///tmp/build/80754af9/wcwidth_1593447189090/work
 whitenoise==5.2.0
