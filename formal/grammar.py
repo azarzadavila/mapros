@@ -8,6 +8,13 @@ class Sentence:
             raise ValueError("This is not a correct sentence.")
 
 
+class IDSentence:
+    def __init__(self, id):
+        if id is None:
+            raise ValueError("The id of an IDSentence may not be None.")
+        self.id = id
+
+
 class AtomicSentence:
     def __init__(self, data):
         self.data = data
@@ -103,10 +110,12 @@ def check_atomic_sentence(x):
 
 
 def check_sentence(x):
+    if isinstance(x, IDSentence):
+        return True
     if not isinstance(x, Sentence):
         return False
     if len(x.data) == 1:
-        return check_atomic_sentence(x)
+        return check_atomic_sentence(x) or isinstance(x.data[0], IDSentence)
     if len(x.data) == 2:
         return x.data[0] == NEGATION and check_sentence(x.data[1])
     if len(x.data) == 3:
