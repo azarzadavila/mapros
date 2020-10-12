@@ -22,7 +22,19 @@ from formal.grammar import (
     Variable,
 )
 
-StatementProof = namedtuple("StatementProof", ["rule", "sentences"])
+
+class StatementProof(namedtuple("StatementProof", ["rule", "sentences"])):
+    def __str__(self):
+        if len(self.sentences) == 0:
+            return self.rule
+        s = self.rule
+        s += " ("
+        for i in range(len(self.sentences) - 1):
+            s += str(self.sentences[i])
+            s += ", "
+        s += str(self.sentences[-1])
+        s += ")"
+        return s
 
 
 def reductio_ad_absurdum(hypothesis, sentence, sentence_false):
