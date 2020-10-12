@@ -120,6 +120,14 @@ class Constant:
         return self.name
 
 
+class PredicateConstant:
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return self.name
+
+
 class Variable:
     def __init__(self, name):
         self.name = name
