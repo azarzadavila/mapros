@@ -84,7 +84,14 @@ class LogicFunction:
         return self.name
 
 
-NEGATION = 0
+class __Negation(Enum):
+    NEGATION = auto()
+
+    def __str__(self):
+        return "NOT"
+
+
+NEGATION = __Negation.NEGATION
 
 
 class Quantifier(Enum):
@@ -92,8 +99,8 @@ class Quantifier(Enum):
     EXISTENTIAL = auto()
 
     def __str__(self):
-        smap = {self.UNIVERSAL: "for all", self.EXISTENTIAL: "exists"}
-        return smap[self.value]
+        smap = {self.UNIVERSAL: "FORALL", self.EXISTENTIAL: "EXISTS"}
+        return smap[self]
 
 
 class BinaryConnector(Enum):
@@ -109,7 +116,7 @@ class BinaryConnector(Enum):
             self.IMPLICATION: "=>",
             self.BICONDITIONAL: "<=>",
         }
-        return smap[self.value]
+        return smap[self]
 
 
 class Constant:
