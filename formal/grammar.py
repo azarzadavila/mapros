@@ -150,10 +150,12 @@ def check_terms(arity, args):
 
 
 def check_term(x):
+    if isinstance(x, Constant):
+        return True
+    if isinstance(x, Variable):
+        return True
     if not isinstance(x, Term):
         return False
-    if len(x.data) == 1:
-        return isinstance(x.data[0], Constant) or isinstance(x.data[0], Variable)
     if len(x.data) == 2:
         fct = x.data[0]
         if not isinstance(fct, LogicFunction):
@@ -164,10 +166,12 @@ def check_term(x):
 
 
 def check_atomic_sentence(x):
+    if isinstance(x, bool):
+        return True
+    if isinstance(x, PredicateConstant):
+        return True
     if not isinstance(x, AtomicSentence):
         return False
-    if len(x.data) == 1:
-        return isinstance(x.data[0], bool)
     if len(x.data) == 2:
         pred = x.data[0]
         if not isinstance(pred, Predicate):
@@ -180,10 +184,10 @@ def check_atomic_sentence(x):
 def check_sentence(x):
     if isinstance(x, IDSentence):
         return True
+    if check_atomic_sentence(x):
+        return True
     if not isinstance(x, Sentence):
         return False
-    if len(x.data) == 1:
-        return check_atomic_sentence(x) or isinstance(x.data[0], IDSentence)
     if len(x.data) == 2:
         return x.data[0] == NEGATION and check_sentence(x.data[1])
     if len(x.data) == 3:
