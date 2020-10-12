@@ -2,7 +2,7 @@ from enum import Enum, auto
 
 
 class Sentence:
-    def __init__(self, data):
+    def __init__(self, *data):
         self.data = data
         if not check_sentence(self):
             raise ValueError("This is not a correct sentence.")
@@ -23,22 +23,24 @@ class AtomicSentence:
 
 
 class Term:
-    def __init__(self, data):
+    def __init__(self, *data):
         self.data = data
         if not check_term(self):
             raise ValueError("This is not a correct term.")
 
 
 class Predicate:
-    def __init__(self, arity):
+    def __init__(self, arity, name=None):
         self.arity = arity
+        self.name = name
         if not isinstance(arity, int) or arity < 0:
             raise ValueError("The arity of a predicate can not be negative.")
 
 
 class LogicFunction:
-    def __init__(self, arity):
+    def __init__(self, arity, name=None):
         self.arity = arity
+        self.name = name
         if not isinstance(arity, int) or arity < 0:
             raise ValueError("The arity of a function can not be negative.")
 
@@ -59,13 +61,13 @@ class BinaryConnector(Enum):
 
 
 class Constant:
-    def __init__(self, cst):
-        self.cst = cst
+    def __init__(self, name):
+        self.name = name
 
 
 class Variable:
-    def __init__(self, var):
-        self.var = var
+    def __init__(self, name):
+        self.name = name
 
 
 def check_binary_connector(x):

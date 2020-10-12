@@ -26,7 +26,7 @@ StatementProof = namedtuple("StatementProof", ["rule", "sentences"])
 
 
 def reductio_ad_absurdum(hypothesis, sentence, sentence_false):
-    return Sentence((NEGATION, hypothesis))
+    return Sentence(NEGATION, hypothesis)
 
 
 def double_negation_elimination(sentence):
@@ -34,11 +34,11 @@ def double_negation_elimination(sentence):
 
 
 def double_negation_introduction(sentence):
-    return Sentence((NEGATION, Sentence((NEGATION, sentence))))
+    return Sentence(NEGATION, Sentence(NEGATION, sentence))
 
 
 def deduction_theorem(hypothesis, sentence):
-    return Sentence((hypothesis, BinaryConnector.IMPLICATION, sentence))
+    return Sentence(hypothesis, BinaryConnector.IMPLICATION, sentence)
 
 
 def modus_ponens(sentence, hypothesis):
@@ -46,11 +46,11 @@ def modus_ponens(sentence, hypothesis):
 
 
 def modus_tollens(sentence, conclusion_neg):
-    return Sentence((NEGATION, sentence.data[0]))
+    return Sentence(NEGATION, sentence.data[0])
 
 
 def adjunction(sentence1, sentence2):
-    return Sentence((sentence1, BinaryConnector.CONJUCTION, sentence2))
+    return Sentence(sentence1, BinaryConnector.CONJUCTION, sentence2)
 
 
 def simplification1(sentence):
@@ -66,7 +66,7 @@ def simplification(sentence):
 
 
 def addition(sentence1, sentence2):
-    return Sentence((sentence1, BinaryConnector.DISJUNCTION, sentence2))
+    return Sentence(sentence1, BinaryConnector.DISJUNCTION, sentence2)
 
 
 def case_analysis(implication1, implication2, disjunction):
@@ -87,13 +87,13 @@ def disjunctive_syllogism(disjunction, sentence):
 
 def constructive_dilemma(implication1, implication2, disjunction):
     return Sentence(
-        (implication1.data[2], BinaryConnector.DISJUNCTION, implication2.data[2])
+        implication1.data[2], BinaryConnector.DISJUNCTION, implication2.data[2]
     )
 
 
 def biconditional_introduction(implication1, implication2):
     return Sentence(
-        (implication1.data[0], BinaryConnector.BICONDITIONAL, implication2.data[0])
+        implication1.data[0], BinaryConnector.BICONDITIONAL, implication2.data[0]
     )
 
 
@@ -110,11 +110,11 @@ def biconditional_elimination(biconditional, sentence):
 
 
 def biconditional_neg1(biconditional, neg_sentence):
-    return Sentence((NEGATION, biconditional.data[2]))
+    return Sentence(NEGATION, biconditional.data[2])
 
 
 def biconditional_neg2(biconditional, neg_sentence):
-    return Sentence((NEGATION, biconditional.data[0]))
+    return Sentence(NEGATION, biconditional.data[0])
 
 
 def biconditional_neg(biconditional, neg_sentence):
