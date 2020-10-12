@@ -7,12 +7,35 @@ class Sentence:
         if not check_sentence(self):
             raise ValueError("This is not a correct sentence.")
 
+    def __str__(self):
+        s = "("
+        for i in range(len(self.data) - 1):
+            s += str(self.data[i])
+            s += " "
+        s += str(self.data[-1])
+        s += ")"
+        return s
+
 
 class IDSentence:
     def __init__(self, id):
         if id is None:
             raise ValueError("The id of an IDSentence may not be None.")
         self.id = id
+
+    def __str__(self):
+        return str(self.id)
+
+
+def str_with_arity(arity_obj, args):
+    s = str(arity_obj)
+    s += "("
+    for i in range(len(args) - 1):
+        s += str(args[i])
+        s += ", "
+    s += str(args[-1])
+    s += ")"
+    return s
 
 
 class AtomicSentence:
@@ -21,12 +44,22 @@ class AtomicSentence:
         if not check_atomic_sentence(self):
             raise ValueError("This is not a correct atomic sentence.")
 
+    def __str__(self):
+        if len(self.data) == 1:
+            return str(self.data[0])
+        return str_with_arity(self.data[0], self.data[1])
+
 
 class Term:
     def __init__(self, *data):
         self.data = data
         if not check_term(self):
             raise ValueError("This is not a correct term.")
+
+    def __str__(self):
+        if len(self.data) == 1:
+            return str(self.data[0])
+        return str_with_arity(self.data[0], self.data[1])
 
 
 class Predicate:
@@ -36,6 +69,9 @@ class Predicate:
         if not isinstance(arity, int) or arity < 0:
             raise ValueError("The arity of a predicate can not be negative.")
 
+    def __str__(self):
+        return self.name
+
 
 class LogicFunction:
     def __init__(self, arity, name=None):
@@ -43,6 +79,9 @@ class LogicFunction:
         self.name = name
         if not isinstance(arity, int) or arity < 0:
             raise ValueError("The arity of a function can not be negative.")
+
+    def __str__(self):
+        return self.name
 
 
 NEGATION = 0
@@ -52,6 +91,10 @@ class Quantifier(Enum):
     UNIVERSAL = auto()
     EXISTENTIAL = auto()
 
+    def __str__(self):
+        smap = {self.UNIVERSAL: "for all", self.EXISTENTIAL: "exists"}
+        return smap[self.value]
+
 
 class BinaryConnector(Enum):
     CONJUCTION = auto()
@@ -59,15 +102,30 @@ class BinaryConnector(Enum):
     IMPLICATION = auto()
     BICONDITIONAL = auto()
 
+    def __str__(self):
+        smap = {
+            self.CONJUCTION: "AND",
+            self.DISJUNCTION: "OR",
+            self.IMPLICATION: "=>",
+            self.BICONDITIONAL: "<=>",
+        }
+        return smap[self.value]
+
 
 class Constant:
     def __init__(self, name):
         self.name = name
 
+    def __str__(self):
+        return self.name
+
 
 class Variable:
     def __init__(self, name):
         self.name = name
+
+    def __str__(self):
+        return self.name
 
 
 def check_binary_connector(x):
