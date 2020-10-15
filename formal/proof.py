@@ -1,7 +1,6 @@
-def print_tab(s, tab):
+def print_tab(tab):
     for i in range(tab):
         print("\t", end="")
-    print(s, end="")
 
 
 class Proof:
@@ -15,9 +14,11 @@ class Proof:
         self.parent_id = parent_id
 
     def print(self, tab=0):
+        print_tab(tab)
         if self.parent_id is not None:
-            print_tab(self.parent_id, tab)
+            print(self.parent_id, end=" ")
         print(self.statement)
         for child in self.children:
             child.print(tab + 1)
+        print_tab(tab)
         print("Proof : ", self.statement_proof)
