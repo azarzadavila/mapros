@@ -131,3 +131,30 @@ def biconditional_neg2(biconditional, neg_sentence):
 
 def biconditional_neg(biconditional, neg_sentence):
     return biconditional_neg1(biconditional, neg_sentence)
+
+
+MAP_RULE = {
+    "reductio_ad_absurdum": reductio_ad_absurdum,
+    "double_negation_elimination": double_negation_elimination,
+    "double_negation_introduction": double_negation_introduction,
+    "deduction_theorem": deduction_theorem,
+    "modus_ponens": modus_ponens,
+    "modus_tollens": modus_tollens,
+    "adjunction": adjunction,
+    "simplification1": simplification1,
+    "simplification2": simplification2,
+    "simplification": simplification,
+    "addition": addition,
+    "case_analysis": case_analysis,
+    "disjunctive_syllogism1": disjunctive_syllogism1,
+    "disjunctive_syllogism2": disjunctive_syllogism2,
+    "disjunctive_syllogism": disjunctive_syllogism,
+    "constructive_dilemma": constructive_dilemma,
+    "biconditional_introduction": biconditional_introduction,
+    "biconditional_elimination1": biconditional_elimination1,
+    "biconditional_elimination2": biconditional_elimination2,
+    "biconditional_elimination": biconditional_elimination,
+    "biconditional_neg1": biconditional_neg1,
+    "biconditional_neg2": biconditional_neg2,
+    "biconditional_neg": biconditional_neg,
+}
