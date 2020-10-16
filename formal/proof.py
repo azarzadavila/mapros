@@ -1,3 +1,4 @@
+from formal.grammar import IDSentence
 from formal.rules_inference import MAP_RULE, StatementProof
 
 # TODO edit proofs : for example insert a new proof child before a child without deleting the previous one
@@ -93,6 +94,9 @@ class Proof:
         if isinstance(arg, tuple):
             proof = self.get_proof(arg)
             return proof.statement
+        if isinstance(arg, IDSentence):
+            # TODO retrieve the sentence from an IDSentence
+            pass
         return arg
 
     def add_statement_with_rule(self, position, rule, *args):
