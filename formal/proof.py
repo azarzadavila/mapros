@@ -4,6 +4,7 @@ from formal.rules_inference import MAP_RULE, StatementProof
 # TODO internal current node
 # TODO first element without proof
 # TODO all elements without proof
+# TODO external elements
 
 
 def print_tab(tab):
@@ -25,10 +26,12 @@ def check_scope(position, reference):
         and position[common] == reference[common]
     ):
         common += 1
-    if len(position) == common + 1:
-        return position[-1] < reference[common]
-    if len(reference) == common + 1 and len(position) == len(reference) + 1:
+    if len(position) == common:
+        return False
+    if len(reference) == common and len(position) == len(reference) + 1:
         return True
+    if len(position) == common+1:
+        return position[-1] < reference[common]
     return False
 
 
