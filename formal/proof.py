@@ -1,5 +1,10 @@
 from formal.rules_inference import MAP_RULE, StatementProof
 
+# TODO edit proofs : for example insert a new proof child before a child without deleting the previous one
+# TODO internal current node
+# TODO first element without proof
+# TODO all elements without proof
+
 
 def print_tab(tab):
     for i in range(tab):
