@@ -16,6 +16,9 @@ class Sentence:
         s += ")"
         return s
 
+    def __eq__(self, other):
+        return self.data == other.data
+
 
 class IDSentence:
     def __init__(self, id):
@@ -25,6 +28,9 @@ class IDSentence:
 
     def __str__(self):
         return str(self.id)
+
+    def __eq__(self, other):
+        return other.id == self.id
 
 
 def str_with_arity(arity_obj, args):
@@ -44,6 +50,9 @@ class AtomicSentence:
         if not check_atomic_sentence(self):
             raise ValueError("This is not a correct atomic sentence.")
 
+    def __eq__(self, other):
+        return self.data == other.data
+
     def __str__(self):
         if len(self.data) == 1:
             return str(self.data[0])
@@ -55,6 +64,9 @@ class Term:
         self.data = data
         if not check_term(self):
             raise ValueError("This is not a correct term.")
+
+    def __eq__(self, other):
+        return self.data == other.data
 
     def __str__(self):
         if len(self.data) == 1:
@@ -69,6 +81,9 @@ class Predicate:
         if not isinstance(arity, int) or arity < 0:
             raise ValueError("The arity of a predicate can not be negative.")
 
+    def __eq__(self, other):
+        return self.arity == other.arity and self.name == other.name
+
     def __str__(self):
         return self.name
 
@@ -79,6 +94,9 @@ class LogicFunction:
         self.name = name
         if not isinstance(arity, int) or arity < 0:
             raise ValueError("The arity of a function can not be negative.")
+
+    def __eq__(self, other):
+        return self.arity == other.arity and self.name == other.name
 
     def __str__(self):
         return self.name
@@ -126,6 +144,9 @@ class Constant:
     def __str__(self):
         return self.name
 
+    def __eq__(self, other):
+        return self.name == other.name
+
 
 class PredicateConstant:
     def __init__(self, name):
@@ -134,6 +155,9 @@ class PredicateConstant:
     def __str__(self):
         return self.name
 
+    def __eq__(self, other):
+        return self.name == other.name
+
 
 class Variable:
     def __init__(self, name):
@@ -141,6 +165,9 @@ class Variable:
 
     def __str__(self):
         return self.name
+
+    def __eq__(self, other):
+        return self.name == other.name
 
 
 def check_binary_connector(x):
