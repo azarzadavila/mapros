@@ -189,6 +189,8 @@ class Proof:
         proof = self.get_proof(position)
         if proof.statement_proof is None:
             return False
+        if proof.statement_proof.rule == "premise":
+            return True
         rule_fct = MAP_RULE[proof.statement_proof.rule]
         sentences = proof.statement_proof.sentences
         for sentence in sentences:
