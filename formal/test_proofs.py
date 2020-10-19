@@ -24,7 +24,7 @@ class CompleteFirstOrderProof(TestCase):
     def test_simple(self):
         A = PredicateConstant("A")
         B = PredicateConstant("B")
-        proof = Proof(Sentence(A, BC.CONJUCTION, B), [], None)
+        proof = Proof(Sentence(A, BC.CONJUNCTION, B), [], None)
         proof.add_statement_child(A, ())
         proof.add_statement_child(B, ())
         proof.edit_statement_proof(StatementProof("premise", []), (0,))

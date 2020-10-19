@@ -37,11 +37,38 @@ class StatementProof(namedtuple("StatementProof", ["rule", "sentences"])):
         return s
 
 
+def not_implication(implication):
+    if not implication.data[1] == BinaryConnector.IMPLICATION:
+        raise ValueError("The passed sentence is not an implication")
+
+
+def not_conjunction(conjunction):
+    if not conjunction.data[1] == BinaryConnector.CONJUNCTION:
+        raise ValueError("The passed sentence is not a conjunction")
+
+
+def not_disjunction(disjunction):
+    if not disjunction.data[1] == BinaryConnector.DISJUNCTION:
+        raise ValueError("The passed sentence is not a disjunction")
+
+
+def not_biconditional(biconditional):
+    if not biconditional.data[1] == BinaryConnector.BICONDITIONAL:
+        raise ValueError("The passed sentence is not a biconditional")
+
+
 def reductio_ad_absurdum(hypothesis, sentence, sentence_false):
+    """
+    TODO how to see if hypothesis is an hypothesis ?
+    """
+    if not Sentence(NEGATION, sentence) == sentence_false:
+        raise ValueError("The sentence passed is not the negation of the sentence")
     return Sentence(NEGATION, hypothesis)
 
 
 def double_negation_elimination(sentence):
+    if not sentence.data[0] == NEGATION and sentence.data[1].data[1] == NEGATION:
+        raise ValueError("This is not a double negation")
     return sentence.data[1].data[1]
 
 
@@ -50,26 +77,37 @@ def double_negation_introduction(sentence):
 
 
 def deduction_theorem(hypothesis, sentence):
+    """
+    TODO how to see if hypothesis is an hypothesis ?
+    """
     return Sentence(hypothesis, BinaryConnector.IMPLICATION, sentence)
 
 
 def modus_ponens(sentence, hypothesis):
+    not_implication(sentence)
+    if not sentence.data[0] == hypothesis:
+        raise ValueError("The hypothesis is not respected")
     return sentence.data[2]
 
 
 def modus_tollens(sentence, conclusion_neg):
+    not_implication(sentence)
+    if not sentence.data[2] == conclusion_neg.data[1]:
+        raise ValueError("The passed sentence is not the negation of the conclusion")
     return Sentence(NEGATION, sentence.data[0])
 
 
 def adjunction(sentence1, sentence2):
-    return Sentence(sentence1, BinaryConnector.CONJUCTION, sentence2)
+    return Sentence(sentence1, BinaryConnector.CONJUNCTION, sentence2)
 
 
 def simplification1(sentence):
+    not_conjunction(sentence)
     return sentence.data[0]
 
 
 def simplification2(sentence):
+    not_conjunction(sentence)
     return sentence.data[2]
 
 
@@ -82,14 +120,34 @@ def addition(sentence1, sentence2):
 
 
 def case_analysis(implication1, implication2, disjunction):
+    not_implication(implication1)
+    not_implication(implication2)
+    not_disjunction(disjunction)
+    if (
+        not disjunction.data[0] == implication1.data[0]
+        or not disjunction.data[2] == implication2.data[0]
+    ):
+        raise ValueError("One of the implications is not in the disjunction")
+    if not implication1.data[2] == implication2.data[2]:
+        raise ValueError("The conclusion is not the same for both implications")
     return implication1.data[2]
 
 
 def disjunctive_syllogism1(disjunction, sentence):
+    not_disjunction(disjunction)
+    if not Sentence(NEGATION, disjunction.data[0]) == sentence:
+        raise ValueError(
+            "The passed sentence is not the negation of the first arg of the disjunction"
+        )
     return disjunction.data[2]
 
 
 def disjunctive_syllogism2(disjunction, sentence):
+    not_disjunction(disjunction)
+    if not Sentence(NEGATION, disjunction.data[2]) == sentence:
+        raise ValueError(
+            "The passed sentence is not the negation of the second arg of the disjunction"
+        )
     return disjunction.data[0]
 
 
@@ -98,22 +156,53 @@ def disjunctive_syllogism(disjunction, sentence):
 
 
 def constructive_dilemma(implication1, implication2, disjunction):
+    not_implication(implication1)
+    not_implication(implication2)
+    not_disjunction(disjunction)
+    if not disjunction.data[0] == implication1.data[0]:
+        raise ValueError(
+            "The hypothesis of the first implication is not the first arg of the disjunction"
+        )
+    if not disjunction.data[2] == implication2.data[0]:
+        raise ValueError(
+            "The hypothesis of the second implication is not the second arg of the disjunction"
+        )
     return Sentence(
         implication1.data[2], BinaryConnector.DISJUNCTION, implication2.data[2]
     )
 
 
 def biconditional_introduction(implication1, implication2):
+    not_implication(implication1)
+    not_implication(implication2)
+    if not implication1.data[0] == implication2.data[2]:
+        raise ValueError(
+            "The hypothesis of the first implication is not the conclusion of the second implication"
+        )
+    if not implication2.data[0] == implication1.data[2]:
+        raise ValueError(
+            "The hypothesis of the second implication is not the conclusion of the first implication"
+        )
     return Sentence(
         implication1.data[0], BinaryConnector.BICONDITIONAL, implication2.data[0]
     )
 
 
 def biconditional_elimination1(biconditional, sentence):
+    not_biconditional(biconditional)
+    if not biconditional[0] == sentence:
+        raise ValueError(
+            "The passed sentence does not correspond to the first element of the biconditional"
+        )
     return biconditional.data[2]
 
 
 def biconditional_elimination2(biconditional, sentence):
+    not_biconditional(biconditional)
+    if not biconditional[2] == sentence:
+        raise ValueError(
+            "The passed sentence does not correspond to the second element of the biconditional"
+        )
     return biconditional.data[0]
 
 
@@ -122,10 +211,20 @@ def biconditional_elimination(biconditional, sentence):
 
 
 def biconditional_neg1(biconditional, neg_sentence):
+    not_biconditional(biconditional)
+    if not Sentence(NEGATION, biconditional.data[0]) == neg_sentence:
+        raise ValueError(
+            "The passed sentence does not correspond to the negation of the first hypothesis"
+        )
     return Sentence(NEGATION, biconditional.data[2])
 
 
 def biconditional_neg2(biconditional, neg_sentence):
+    not_biconditional(biconditional)
+    if not Sentence(NEGATION, biconditional.data[2]) == neg_sentence:
+        raise ValueError(
+            "The passed sentence does not correspond to the negation of the second hypothesis"
+        )
     return Sentence(NEGATION, biconditional.data[0])
 
 

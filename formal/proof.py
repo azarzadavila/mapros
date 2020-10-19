@@ -163,7 +163,7 @@ class Proof:
         if isinstance(arg, IDSentence):
             # TODO retrieve the sentence from an IDSentence
             pass
-        return arg
+        raise ValueError("Arg is neither a tuple nor a IDSentence")
 
     def add_statement_with_rule_child(self, position, rule, *args):
         """
@@ -191,13 +191,18 @@ class Proof:
             return False
         if proof.statement_proof.rule == "premise":
             return True
+        if proof.statement_proof.rule not in MAP_RULE:
+            return False
         rule_fct = MAP_RULE[proof.statement_proof.rule]
         sentences = proof.statement_proof.sentences
         for sentence in sentences:
             if isinstance(sentence, tuple):
                 if not check_scope(sentence, position):
                     return False
-        statement = rule_fct(*map(self.get_statement, sentences))
+        try:
+            statement = rule_fct(*map(self.get_statement, sentences))
+        except (ValueError, TypeError):
+            return False
         if not statement == proof.statement:
             return False
         for i in range(len(proof.children)):

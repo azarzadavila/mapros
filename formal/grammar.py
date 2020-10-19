@@ -122,14 +122,14 @@ class Quantifier(Enum):
 
 
 class BinaryConnector(Enum):
-    CONJUCTION = auto()
+    CONJUNCTION = auto()
     DISJUNCTION = auto()
     IMPLICATION = auto()
     BICONDITIONAL = auto()
 
     def __str__(self):
         smap = {
-            self.CONJUCTION: "AND",
+            self.CONJUNCTION: "AND",
             self.DISJUNCTION: "OR",
             self.IMPLICATION: "=>",
             self.BICONDITIONAL: "<=>",
