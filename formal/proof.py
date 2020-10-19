@@ -189,17 +189,23 @@ class Proof:
         proof = self.get_proof(position)
         if proof.statement_proof is None:
             return False
+        sentences = proof.statement_proof.sentences
         if proof.statement_proof.rule == "premise":
             return True
+        if proof.statement_proof.rule == "hypothesis":
+            return position[-1] == 0
         if proof.statement_proof.rule not in MAP_RULE:
             return False
         rule_fct = MAP_RULE[proof.statement_proof.rule]
-        sentences = proof.statement_proof.sentences
         for sentence in sentences:
             if isinstance(sentence, tuple):
                 if not check_scope(sentence, position):
                     return False
         try:
+            if proof.statement_proof.rule == "reductio_ad_absurdum":
+                hypothesis = self.get_proof(sentences[0])
+                if not hypothesis.statement_proof == "hypothesis":
+                    raise ValueError("The passed sentence is not an hypothesis")
             statement = rule_fct(*map(self.get_statement, sentences))
         except (ValueError, TypeError):
             return False
