@@ -31,3 +31,14 @@ class CompleteFirstOrderProof(TestCase):
         proof.edit_statement_proof(StatementProof("premise", []), (1,))
         proof.edit_statement_proof(StatementProof("adjunction", [(0,), (1,)]), ())
         self.assertTrue(proof.check_proof(()))
+
+    def test_simple_raise(self):
+        A = PredicateConstant("A")
+        B = PredicateConstant("B")
+        proof = Proof(Sentence(A, BC.IMPLICATION, B), [], None)
+        proof.add_statement_child(A, ())
+        proof.add_statement_child(B, ())
+        proof.edit_statement_proof(StatementProof("premise", []), (0,))
+        proof.edit_statement_proof(StatementProof("premise", []), (1,))
+        proof.edit_statement_proof(StatementProof("adjunction", [(0,), (1,)]), ())
+        self.assertFalse(proof.check_proof(()))
