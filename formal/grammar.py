@@ -29,6 +29,10 @@ class Sentence:
             elif self.data[1] == var:
                 return self
             else:
+                if self.data[1] == new_var:
+                    print(
+                        "Warning : there already exists a quantifier associated with the new variable, variable capture might happen"
+                    )
                 return Sentence(
                     self.data[0], self.data[1], self.data[2].substitute(var, new_var)
                 )
