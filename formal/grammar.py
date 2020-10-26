@@ -16,6 +16,23 @@ class Sentence:
         s += ")"
         return s
 
+    def substitute(self, var, new_var):
+        if len(self.data) == 2:
+            return Sentence(NEGATION, self.data[1].substitute(var, new_var))
+        if len(self.data) == 3:
+            if isinstance(self.data[1], BinaryConnector):
+                return Sentence(
+                    self.data[0].substitute(var, new_var),
+                    self.data[1],
+                    self.data[2].substitute(var, new_var),
+                )
+            elif self.data[1] == var:
+                return self
+            else:
+                return Sentence(
+                    self.data[0], self.data[1], self.data[2].substitute(var, new_var)
+                )
+
     def __eq__(self, other):
         return self.data == other.data
 
@@ -31,6 +48,10 @@ class IDSentence:
 
     def __eq__(self, other):
         return other.id == self.id
+
+    def substitute(self, var, new_var):
+        # TODO
+        pass
 
 
 def str_with_arity(arity_obj, args):
@@ -58,6 +79,11 @@ class AtomicSentence:
             return str(self.data[0])
         return str_with_arity(self.data[0], self.data[1])
 
+    def substitute(self, var, new_var):
+        return AtomicSentence(
+            (self.data[0], tuple(x.substitute(var, new_var) for x in self.data[1]))
+        )
+
 
 class Term:
     def __init__(self, *data):
@@ -72,6 +98,11 @@ class Term:
         if len(self.data) == 1:
             return str(self.data[0])
         return str_with_arity(self.data[0], self.data[1])
+
+    def substitute(self, var, new_var):
+        return Term(
+            self.data[0], tuple(x.substitute(var, new_var) for x in self.data[1])
+        )
 
 
 class Predicate:
@@ -147,6 +178,9 @@ class Constant:
     def __eq__(self, other):
         return self.name == other.name
 
+    def substitute(self, var, new_var):
+        return self
+
 
 class PredicateConstant:
     def __init__(self, name):
@@ -168,6 +202,12 @@ class Variable:
 
     def __eq__(self, other):
         return self.name == other.name
+
+    def substitute(self, var, new_var):
+        if self == var:
+            return new_var
+        else:
+            return self
 
 
 def check_binary_connector(x):
