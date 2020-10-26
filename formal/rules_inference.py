@@ -57,6 +57,16 @@ def not_biconditional(biconditional):
         raise ValueError("The passed sentence is not a biconditional")
 
 
+def not_universal(universal):
+    if not universal.data[0] == Quantifier.UNIVERSAL:
+        raise ValueError("The passed sentence is not an universal")
+
+
+def not_existential(existential):
+    if not existential.data[0] == Quantifier.EXISTENTIAL:
+        raise ValueError("The passed sentence is not an existential")
+
+
 def reductio_ad_absurdum(hypothesis, sentence, sentence_false):
     """
     TODO how to see if hypothesis is an hypothesis ?
@@ -232,6 +242,28 @@ def biconditional_neg(biconditional, neg_sentence):
     return biconditional_neg1(biconditional, neg_sentence)
 
 
+def universal_generalization(sentence, var, new_var):
+    # TODO check conditions
+    return Sentence(Quantifier.UNIVERSAL, new_var, sentence.substitute(var, new_var))
+
+
+def universal_instantiation(sentence, new_var):
+    # TODO check conditions
+    not_universal(sentence)
+    return sentence.data[2].substitute(sentence.data[1], new_var)
+
+
+def existential_generalization(sentence, var, new_var):
+    # TODO check conditions
+    return Sentence(Quantifier.EXISTENTIAL, new_var, sentence.substitute(var, new_var))
+
+
+def existential_instantiation(sentence, new_var):
+    # TODO check conditions
+    not_existential(sentence)
+    return sentence[2].substitute(sentence.data[1], new_var)
+
+
 MAP_RULE = {
     "reductio_ad_absurdum": reductio_ad_absurdum,
     "double_negation_elimination": double_negation_elimination,
@@ -256,4 +288,8 @@ MAP_RULE = {
     "biconditional_neg1": biconditional_neg1,
     "biconditional_neg2": biconditional_neg2,
     "biconditional_neg": biconditional_neg,
+    "universal_generalization": universal_generalization,
+    "universal_instantiation": universal_instantiation,
+    "existential_generalization": existential_generalization,
+    "existential_instantiation": existential_instantiation,
 }
