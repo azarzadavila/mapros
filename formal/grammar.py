@@ -23,6 +23,15 @@ class Sentence(metaclass=abc.ABCMeta):
         """
         pass
 
+    @abc.abstractmethod
+    def substitute(self, var, new_var):
+        """
+        :param var:
+        :param new_var:
+        :return: new Sentence with the substitution
+        """
+        pass
+
 
 class ConstantPredicate(Sentence):
     def __init__(self, symbol):
@@ -37,6 +46,9 @@ class ConstantPredicate(Sentence):
     @classmethod
     def build_from_tree(cls, element):
         return cls(element.get("symbol"))
+
+    def substitute(self, var, new_var):
+        return self
 
 
 class Predicate(Sentence):
@@ -58,6 +70,10 @@ class Predicate(Sentence):
         return cls(
             element.get("symbol"), *[build_from_tree_term(child) for child in element]
         )
+
+    def substitute(self, var, new_var):
+        new_terms = [term.substitute(var, new_var) for term in self.terms]
+        return Predicate(self.symbol, new_terms)
 
 
 class UnaryConnectorSentence(Sentence):
@@ -81,6 +97,11 @@ class UnaryConnectorSentence(Sentence):
         return cls(
             UnaryConnector.from_str(element.get("connector")),
             build_from_tree_sentence(element[0]),
+        )
+
+    def substitute(self, var, new_var):
+        return UnaryConnectorSentence(
+            self.connector, self.sentence.substitute(var, new_var)
         )
 
 
@@ -110,6 +131,13 @@ class BinaryConnectorSentence(Sentence):
             BinaryConnector.from_str(element.get("connector")),
             build_from_tree_sentence(element[0]),
             build_from_tree_sentence(element[1]),
+        )
+
+    def substitute(self, var, new_var):
+        return BinaryConnectorSentence(
+            self.connector,
+            self.sentence1.substitute(var, new_var),
+            self.sentence2.substitute(var, new_var),
         )
 
 
@@ -143,8 +171,18 @@ class QuantifierSentence(Sentence):
             build_from_tree_sentence(element[1]),
         )
 
+    def substitute(self, var, new_var):
+        if var == self.var:
+            return self
+        if new_var == self.var:
+            raise ValueError("variable capture")
+        return QuantifierSentence(
+            self.quantifier, self.var, self.sentence.substitute(var, new_var)
+        )
+
 
 class Term(metaclass=abc.ABCMeta):
+    @abc.abstractmethod
     def add_to_tree(self, parent):
         """
         Adds this element to build a XML representation of the term
@@ -163,6 +201,10 @@ class Term(metaclass=abc.ABCMeta):
         """
         pass
 
+    @abc.abstractmethod
+    def substitute(self, var, new_var):
+        pass
+
 
 class Constant(Term):
     def __init__(self, symbol):
@@ -176,6 +218,9 @@ class Constant(Term):
     def build_from_tree(cls, element):
         return cls(element.get("symbol"))
 
+    def substitute(self, var, new_var):
+        return self
+
 
 class Variable(Term):
     def __init__(self, symbol):
@@ -188,6 +233,11 @@ class Variable(Term):
     @classmethod
     def build_from_tree(cls, element):
         return cls(element.get("symbol"))
+
+    def substitute(self, var, new_var):
+        if var == self:
+            return new_var
+        return self
 
 
 class Function(Term):
@@ -209,6 +259,10 @@ class Function(Term):
         return cls(
             element.get("symbol"), *[build_from_tree_term(child) for child in element]
         )
+
+    def substitute(self, var, new_var):
+        new_terms = [term.substitute(var, new_var) for term in self.terms]
+        return Function(self.symbol, new_terms)
 
 
 class UnaryConnector(Enum):
