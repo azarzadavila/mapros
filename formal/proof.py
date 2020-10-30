@@ -114,6 +114,18 @@ class Proof:
         parent.children.insert(position[-1], Proof(sentence, [], None))
         parent.change_position(position)
 
+    def from_existential_instantiation(self, position, var):
+        # TODO
+        pass
+
+    def is_free_in_premises(self, position, var):
+        # TODO
+        pass
+
+    def exists(self, position, var):
+        # TODO
+        pass
+
     def apply_rule(self, position, rule, proofs, args):
         """
         Applies the given rule if it had to be considered to add a proof at position
@@ -143,17 +155,25 @@ class Proof:
             elif rule == "reductio_ad_absurdum":
                 hypothesis = self.get_proof(proofs[0])
                 if not hypothesis.sentence_proof == "hypothesis":
-                    raise ValueError("The passed sentence is not an hypothesis")
+                    raise ValueError("sentence proof is not an hypothesis")
             elif rule == "deduction_theorem":
-                pass
+                hypothesis = self.get_proof(proofs[0])
+                if not hypothesis.sentence_proof == "hypothesis":
+                    raise ValueError("sentence proof is not an hypothesis")
             elif rule == "universal_generalization":
-                pass
+                var = args[0]
+                if self.from_existential_instantiation(position, var):
+                    raise ValueError("variable comes from an existential instantiation")
+                if self.is_free_in_premises(position, var):
+                    raise ValueError("variable is free in a premise")
             elif rule == "universal_instantiation":
                 pass
             elif rule == "existential_generalization":
                 pass
             elif rule == "existential_instantiation":
-                pass
+                new_var = args[1]
+                if self.exists(position, new_var):
+                    raise ValueError("variable already exists")
             rule_fct = MAP_RULE[rule]
             sentence = rule_fct(*map(self.get_sentence, proofs), *args)
             return sentence
