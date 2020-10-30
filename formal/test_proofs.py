@@ -3,7 +3,6 @@ from django.test import TestCase
 from formal.grammar import (
     ConstantPredicate,
     BinaryConnector,
-    Sentence,
     BinaryConnectorSentence,
 )
 from formal.proof import check_scope, Proof
