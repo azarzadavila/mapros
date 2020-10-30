@@ -1,8 +1,13 @@
 from django.test import TestCase
 
-from formal.grammar import PredicateConstant, BinaryConnector, Sentence
+from formal.grammar import (
+    ConstantPredicate,
+    BinaryConnector,
+    Sentence,
+    BinaryConnectorSentence,
+)
 from formal.proof import check_scope, Proof
-from formal.rules_inference import StatementProof
+from formal.rules_inference import SentenceProof
 
 BC = BinaryConnector
 
@@ -21,24 +26,31 @@ class SimpleUnits(TestCase):
 
 
 class CompleteFirstOrderProof(TestCase):
-    def test_simple(self):
-        A = PredicateConstant("A")
-        B = PredicateConstant("B")
-        proof = Proof(Sentence(A, BC.CONJUNCTION, B), [], None)
-        proof.add_statement_child(A, ())
-        proof.add_statement_child(B, ())
-        proof.edit_statement_proof(StatementProof("premise", []), (0,))
-        proof.edit_statement_proof(StatementProof("premise", []), (1,))
-        proof.edit_statement_proof(StatementProof("adjunction", [(0,), (1,)]), ())
+    def test_ex1(self):
+        A = ConstantPredicate("A")
+        B = ConstantPredicate("B")
+        C = ConstantPredicate("C")
+        proof = Proof(
+            BinaryConnectorSentence(BinaryConnector.IMPLICATION, A, C), [], None
+        )
+        proof.add_sentence_child(A, ())
+        proof.edit_sentence_proof(SentenceProof("hypothesis", [], []), (0,))
+        proof.add_sentence_child(
+            BinaryConnectorSentence(BinaryConnector.IMPLICATION, A, B), ()
+        )
+        proof.edit_sentence_proof(SentenceProof("premise", [], []), (1,))
+        proof.add_sentence_child(
+            BinaryConnectorSentence(BinaryConnector.IMPLICATION, B, C), ()
+        )
+        proof.edit_sentence_proof(SentenceProof("premise", [], []), (2,))
+        proof.add_sentence_with_rule_child((), "modus_ponens", [(1,), (0,)], [])
+        proof.add_sentence_with_rule_child((), "modus_ponens", [(2,), (3,)], [])
+        proof.edit_sentence_proof(
+            SentenceProof("deduction_theorem", [(0,), (4,)], []), ()
+        )
+        self.assertTrue(proof.check_proof((0,)))
+        self.assertTrue(proof.check_proof((1,)))
+        self.assertTrue(proof.check_proof((2,)))
+        self.assertTrue(proof.check_proof((3,)))
+        self.assertTrue(proof.check_proof((4,)))
         self.assertTrue(proof.check_proof(()))
-
-    def test_simple_raise(self):
-        A = PredicateConstant("A")
-        B = PredicateConstant("B")
-        proof = Proof(Sentence(A, BC.IMPLICATION, B), [], None)
-        proof.add_statement_child(A, ())
-        proof.add_statement_child(B, ())
-        proof.edit_statement_proof(StatementProof("premise", []), (0,))
-        proof.edit_statement_proof(StatementProof("premise", []), (1,))
-        proof.edit_statement_proof(StatementProof("adjunction", [(0,), (1,)]), ())
-        self.assertFalse(proof.check_proof(()))
