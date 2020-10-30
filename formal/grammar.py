@@ -50,6 +50,9 @@ class ConstantPredicate(Sentence):
     def substitute(self, var, new_var):
         return self
 
+    def __eq__(self, other):
+        return self.symbol == other.symbol
+
 
 class Predicate(Sentence):
     def __init__(self, symbol, *terms):
@@ -74,6 +77,16 @@ class Predicate(Sentence):
     def substitute(self, var, new_var):
         new_terms = [term.substitute(var, new_var) for term in self.terms]
         return Predicate(self.symbol, new_terms)
+
+    def __eq__(self, other):
+        if self.symbol != other.symbol:
+            return False
+        if len(self.terms) != other.terms:
+            return False
+        for term1, term2 in zip(self.terms, other.terms):
+            if term1 != term2:
+                return False
+        return True
 
 
 class UnaryConnectorSentence(Sentence):
@@ -103,6 +116,9 @@ class UnaryConnectorSentence(Sentence):
         return UnaryConnectorSentence(
             self.connector, self.sentence.substitute(var, new_var)
         )
+
+    def __eq__(self, other):
+        return self.connector == other.connector and self.sentence == other.sentence
 
 
 class BinaryConnectorSentence(Sentence):
@@ -138,6 +154,13 @@ class BinaryConnectorSentence(Sentence):
             self.connector,
             self.sentence1.substitute(var, new_var),
             self.sentence2.substitute(var, new_var),
+        )
+
+    def __eq__(self, other):
+        return (
+            self.connector == other.connector
+            and self.sentence1 == other.sentence1
+            and self.sentence2 == other.sentence2
         )
 
 
@@ -178,6 +201,13 @@ class QuantifierSentence(Sentence):
             raise ValueError("variable capture")
         return QuantifierSentence(
             self.quantifier, self.var, self.sentence.substitute(var, new_var)
+        )
+
+    def __eq__(self, other):
+        return (
+            self.quantifier == other.quantifier
+            and self.var == other.var
+            and self.sentence == other.sentence
         )
 
 
@@ -221,6 +251,9 @@ class Constant(Term):
     def substitute(self, var, new_var):
         return self
 
+    def __eq__(self, other):
+        return self.symbol == other.symbol
+
 
 class Variable(Term):
     def __init__(self, symbol):
@@ -240,6 +273,9 @@ class Variable(Term):
         if var == new_var:
             raise ValueError("variable capture")
         return self
+
+    def __eq__(self, other):
+        return self.symbol == other.symbol
 
 
 class Function(Term):
@@ -265,6 +301,16 @@ class Function(Term):
     def substitute(self, var, new_var):
         new_terms = [term.substitute(var, new_var) for term in self.terms]
         return Function(self.symbol, new_terms)
+
+    def __eq__(self, other):
+        if self.symbol != other.symbol:
+            return False
+        if len(self.terms) != len(other.terms):
+            return False
+        for term1, term2 in zip(self.terms, other.terms):
+            if term1 != term2:
+                return False
+        return True
 
 
 class UnaryConnector(Enum):
