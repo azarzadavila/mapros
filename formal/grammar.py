@@ -237,6 +237,8 @@ class Variable(Term):
     def substitute(self, var, new_var):
         if var == self:
             return new_var
+        if var == new_var:
+            raise ValueError("variable capture")
         return self
 
 
