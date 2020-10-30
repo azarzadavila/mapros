@@ -137,7 +137,7 @@ class Proof:
         """
         try:
             parent = self.get_proof(position[:-1])
-            if position[-1] > len(parent.children):
+            if position != () and position[-1] > len(parent.children):
                 raise ValueError(
                     "incorrect position to apply a rule : {}".format(position)
                 )
@@ -148,17 +148,13 @@ class Proof:
                         raise ValueError(
                             "incorrect scope : {} in {}".format(proof, position)
                         )
-            if rule == "premise":
-                return True
-            elif rule == "hypothesis":
-                return position[-1] == 0
-            elif rule == "reductio_ad_absurdum":
+            if rule == "reductio_ad_absurdum":
                 hypothesis = self.get_proof(proofs[0])
-                if not hypothesis.sentence_proof == "hypothesis":
+                if not hypothesis.sentence_proof.rule == "hypothesis":
                     raise ValueError("sentence proof is not an hypothesis")
             elif rule == "deduction_theorem":
                 hypothesis = self.get_proof(proofs[0])
-                if not hypothesis.sentence_proof == "hypothesis":
+                if not hypothesis.sentence_proof.rule == "hypothesis":
                     raise ValueError("sentence proof is not an hypothesis")
             elif rule == "universal_generalization":
                 var = args[0]
@@ -248,6 +244,10 @@ class Proof:
         proof = self.get_proof(position)
         if proof.sentence_proof is None:
             return False
+        if proof.sentence_proof.rule == "premise":
+            return True
+        if proof.sentence_proof.rule == "hypothesis":
+            return position[-1] == 0
         sentence = self.apply_rule(
             position,
             proof.sentence_proof.rule,
