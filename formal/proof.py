@@ -112,7 +112,7 @@ class Proof:
         if position[-1] > len(parent.children):
             raise ValueError("Incorrect position to add a proof : {}".format(position))
         parent.children.insert(position[-1], Proof(sentence, [], None))
-        parent.change_position(position)
+        parent.change_position_child(position)
 
     def from_existential_instantiation(self, position, var):
         # TODO
@@ -194,7 +194,7 @@ class Proof:
             raise ValueError("incorrect rule application")
         sentence_proof = SentenceProof(rule, proofs, args)
         parent.children.insert(position[-1], Proof(sentence, [], sentence_proof))
-        parent.change_position(position)
+        parent.change_position_child(position)
 
     def edit_sentence(self, sentence, position):
         """
