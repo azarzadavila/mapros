@@ -85,6 +85,11 @@ def sentence_proof_data(data):
     return data["rule"] + str(data["proofs"]) + str(data["args"])
 
 
+def validate_positive(value):
+    if value < 0:
+        raise serializers.ValidationError("not a positive value")
+
+
 class ProofModelSerializer(serializers.Serializer):
     id = serializers.IntegerField(read_only=True)
     sentence = SentenceSerializer()
@@ -92,12 +97,14 @@ class ProofModelSerializer(serializers.Serializer):
     parent = serializers.PrimaryKeyRelatedField(
         queryset=ProofModel.objects.all(), allow_null=True
     )
+    parent_position = serializers.IntegerField(validators=[validate_positive])
 
     def create(self, validated_data):
         proof = ProofModel(
             sentence=validated_data["sentence"]["xml"],
             sentence_proof=sentence_proof_data(validated_data["sentence_proof"]),
             parent=validated_data["parent"],
+            parent_position=validated_data["parent_position"],
         )
         proof.save()
         return proof
@@ -106,5 +113,6 @@ class ProofModelSerializer(serializers.Serializer):
         instance.sentence = validated_data["sentence"]["xml"]
         instance.sentence_proof = sentence_proof_data(validated_data["sentence_proof"])
         instance.parent = validated_data["parent"]
+        instance.parent_position = validated_data["parent_position"]
         instance.save()
         return instance
