@@ -17,7 +17,7 @@ class SentenceSerializer(serializers.Serializer):
             raise serializers.ValidationError("error parsing xml")
         try:
             sentence = build_from_tree(xml)
-        except ValueError:
+        except Exception:
             raise serializers.ValidationError("error building sentence from tree")
         return {"xml": attrs["xml"], "sentence": sentence}
 
@@ -60,7 +60,7 @@ class SentenceProofSerializer(serializers.Serializer):
             if res is None:
                 try:
                     res = int(proof)
-                except ValueError:
+                except Exception:
                     raise serializers.ValidationError(
                         "proof is neither an int tuple nor a int"
                     )
