@@ -1,9 +1,12 @@
 from django.test import TestCase
+import xml.etree.ElementTree as ET
 
 from formal.grammar import (
     ConstantPredicate,
     BinaryConnector,
     BinaryConnectorSentence,
+    Predicate,
+    Variable,
 )
 from formal.proof import check_scope, Proof
 from formal.rules_inference import SentenceProof
@@ -53,3 +56,20 @@ class CompleteFirstOrderProof(TestCase):
         self.assertTrue(proof.check_proof((3,)))
         self.assertTrue(proof.check_proof((4,)))
         self.assertTrue(proof.check_proof(()))
+
+
+class CompareTree(TestCase):
+    def test_build(self):
+        sentence = BinaryConnectorSentence(
+            BinaryConnector.IMPLICATION,
+            BinaryConnectorSentence(
+                BinaryConnector.CONJUNCTION,
+                Predicate("p", Variable("x"), Variable("y")),
+                Predicate("p", Variable("y"), Variable("x")),
+            ),
+            Predicate("p", Variable("x"), Variable("x")),
+        )
+        tree = ET.ElementTree(ET.Element("sentence"))
+        root = tree.getroot()
+        sentence.add_to_tree(root)
+        tree.write("test_file.xml")
