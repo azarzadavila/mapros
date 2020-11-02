@@ -51,8 +51,8 @@ def transform_proofs(proofs):
 
 class SentenceProofSerializer(serializers.Serializer):
     rule = serializers.CharField()
-    proofs = serializers.ListField(child=serializers.CharField, allow_empty=True)
-    args = serializers.ListField(child=serializers.CharField, allow_empty=True)
+    proofs = serializers.ListField(child=serializers.CharField(), allow_empty=True)
+    args = serializers.ListField(child=serializers.CharField(), allow_empty=True)
 
     def validate_proofs(self, value):
         for proof in value:
