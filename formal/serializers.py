@@ -4,6 +4,7 @@ from formal.grammar import build_from_tree
 import re
 
 from formal.models import ProofModel
+from formal.rules_inference import SentenceProof
 
 
 class SentenceSerializer(serializers.Serializer):
@@ -18,7 +19,7 @@ class SentenceSerializer(serializers.Serializer):
             sentence = build_from_tree(xml)
         except ValueError:
             raise serializers.ValidationError("error building sentence from tree")
-        return {"sentence": sentence}
+        return {"xml": attrs["xml"], "sentence": sentence}
 
     def create(self, validated_data):
         return validated_data["sentence"]
@@ -38,15 +39,24 @@ def to_tuple_int(s):
     return None
 
 
+def transform_proofs(proofs):
+    res_list = []
+    for proof in proofs:
+        res = to_tuple_int(proof)
+        if res is None:
+            res = int(proof)
+        res_list.append(res)
+    return res_list
+
+
 class SentenceProofSerializer(serializers.Serializer):
     rule = serializers.CharField()
     proofs = serializers.ListField(child=serializers.CharField, allow_empty=True)
     args = serializers.ListField(child=serializers.CharField, allow_empty=True)
 
     def validate_proofs(self, value):
-        proofs = []
         for proof in value:
-            res = to_tuple_int(proof)
+            res = pattern_tuple_int.fullmatch(proof)
             if res is None:
                 try:
                     res = int(proof)
@@ -54,8 +64,25 @@ class SentenceProofSerializer(serializers.Serializer):
                     raise serializers.ValidationError(
                         "proof is neither an int tuple nor a int"
                     )
-            proofs.append(res)
-        return proofs
+        return value
+
+    def create(self, validated_data):
+        return SentenceProof(
+            rule=validated_data["rule"],
+            proofs=transform_proofs(validated_data["proofs"]),
+            args=validated_data["args"],
+        )
+
+    def update(self, instance, validated_data):
+        return SentenceProof(
+            rule=validated_data["rule"],
+            proofs=transform_proofs(validated_data["proofs"]),
+            args=validated_data["args"],
+        )
+
+
+def sentence_proof_data(data):
+    return data["rule"] + str(data["proofs"]) + str(data["args"])
 
 
 class ProofModelSerializer(serializers.Serializer):
@@ -65,3 +92,19 @@ class ProofModelSerializer(serializers.Serializer):
     parent = serializers.PrimaryKeyRelatedField(
         queryset=ProofModel.objects.all(), allow_null=True
     )
+
+    def create(self, validated_data):
+        proof = ProofModel(
+            sentence=validated_data["sentence"]["xml"],
+            sentence_proof=sentence_proof_data(validated_data["sentence_proof"]),
+            parent=validated_data["parent"],
+        )
+        proof.save()
+        return proof
+
+    def update(self, instance, validated_data):
+        instance.sentence = validated_data["sentence"]["xml"]
+        instance.sentence_proof = sentence_proof_data(validated_data["sentence_proof"])
+        instance.parent = validated_data["parent"]
+        instance.save()
+        return instance
