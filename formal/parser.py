@@ -4,19 +4,23 @@ from formal.grammar import *
 sentence_parser = Lark(
     r"""
     sentence: "true" | "false"
-            | LITERAL
-            | /\w/ "(" [term ("," term)*] ")"
+            | predicate
+            | constant_predicate
             | unarysentence
             | binarysentence
             | quantifiersentence
-    term: /\w/ | /\w/ "(" [term ("," term)*] ")"
-    LITERAL: /\w/
+    term: variable | function
+    function: SYMBOL "(" [term ("," term)*] ")"
+    variable: SYMBOL
+    constant_predicate: SYMBOL
+    predicate: SYMBOL "(" [term ("," term)*] ")"
     unaryconnector : "negation"
     binaryconnector : "AND" | "OR" | "=>" | "<=>"
     unarysentence: unaryconnector "(" sentence ")"
     binarysentence: "(" sentence ")" binaryconnector "(" sentence ")"
     quantifier : "FORALL" | "EXISTS"
-    quantifiersentence : quantifier /\w/ "(" sentence ")"
+    quantifiersentence : quantifier variable "(" sentence ")"
+    SYMBOL : /\w/
 
     %import common.WS
     %ignore WS
@@ -38,8 +42,24 @@ class SentenceTransformer(Transformer):
         connector, sentence = unarysentence
         return UnaryConnectorSentence(UnaryConnector.from_str(connector), sentence)
 
-    def LITERAL(self, literal):
-        return ConstantPredicate(symbol=literal.value)
+    def variable(self, symbol):
+        return Variable(symbol=symbol[0])
+
+    def constant_predicate(self, symbol):
+        return ConstantPredicate(symbol=symbol[0])
+
+    def term(self, term):
+        print(term)
+        (term,) = term
+        return term
+
+    def SYMBOL(self, symbol):
+        return symbol.value
+
+    def predicate(self, predicate):
+        symbol = predicate[0]
+        terms = predicate[1:]
+        return Predicate(symbol, *list(terms))
 
 
 def parse(s):
