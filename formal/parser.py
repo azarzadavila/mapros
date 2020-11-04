@@ -1,21 +1,22 @@
-from lark import Lark
+from lark import Lark, Transformer
+from formal.grammar import *
 
 sentence_parser = Lark(
     r"""
     sentence: "true" | "false"
-            | /\w/
+            | LITERAL
             | /\w/ "(" [term ("," term)*] ")"
-            | unaryconnector "(" sentence ")"
-            | unaryconnector /\w/
-            | "(" sentence ")" binaryconnector "(" sentence ")"
-            | /\w/ binaryconnector /\w/
-            | /\w/ binaryconnector "(" sentence ")"
-            | "(" sentence ")" binaryconnector /\w/
-            | quantifier /\w/ "(" sentence ")"
+            | unarysentence
+            | binarysentence
+            | quantifiersentence
     term: /\w/ | /\w/ "(" [term ("," term)*] ")"
-    unaryconnector : "-"
+    LITERAL: /\w/
+    unaryconnector : "negation"
     binaryconnector : "AND" | "OR" | "=>" | "<=>"
+    unarysentence: unaryconnector "(" sentence ")"
+    binarysentence: "(" sentence ")" binaryconnector "(" sentence ")"
     quantifier : "FORALL" | "EXISTS"
+    quantifiersentence : quantifier /\w/ "(" sentence ")"
 
     %import common.WS
     %ignore WS
@@ -23,6 +24,22 @@ sentence_parser = Lark(
 """,
     start="sentence",
 )
+
+
+class SentenceTransformer(Transformer):
+    def sentence(self, sentence):
+        (sentence,) = sentence
+        return sentence
+
+    def unaryconnector(self, connector):
+        return "negation"
+
+    def unarysentence(self, unarysentence):
+        connector, sentence = unarysentence
+        return UnaryConnectorSentence(UnaryConnector.from_str(connector), sentence)
+
+    def LITERAL(self, literal):
+        return ConstantPredicate(symbol=literal.value)
 
 
 def parse(s):
