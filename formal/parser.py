@@ -14,11 +14,18 @@ sentence_parser = Lark(
     variable: SYMBOL
     constant_predicate: SYMBOL
     predicate: SYMBOL "(" [term ("," term)*] ")"
-    unaryconnector : "negation"
-    binaryconnector : "AND" | "OR" | "=>" | "<=>"
+    unaryconnector : NEGATION
+    NEGATION: "negation"
+    binaryconnector : CONJUNCTION | DISJUNCTION | IMPLICATION | BICONDITIONAL
+    CONJUNCTION : "AND"
+    DISJUNCTION : "OR"
+    IMPLICATION : "=>"
+    BICONDITIONAL : "<=>"
     unarysentence: unaryconnector "(" sentence ")"
     binarysentence: "(" sentence ")" binaryconnector "(" sentence ")"
-    quantifier : "FORALL" | "EXISTS"
+    quantifier : UNIVERSAL | EXISTENTIAL
+    UNIVERSAL : "FORALL"
+    EXISTENTIAL : "EXISTS"
     quantifiersentence : quantifier variable "(" sentence ")"
     SYMBOL : /\w/
 
@@ -35,12 +42,36 @@ class SentenceTransformer(Transformer):
         (sentence,) = sentence
         return sentence
 
+    NEGATION = lambda self, _: "negation"
+
     def unaryconnector(self, connector):
-        return "negation"
+        return UnaryConnector.from_str(connector[0])
 
     def unarysentence(self, unarysentence):
         connector, sentence = unarysentence
-        return UnaryConnectorSentence(UnaryConnector.from_str(connector), sentence)
+        return UnaryConnectorSentence(connector, sentence)
+
+    CONJUNCTION = lambda self, _: "conjunction"
+    DISJUNCTION = lambda self, _: "disjunction"
+    IMPLICATION = lambda self, _: "implication"
+    BICONDITIONAL = lambda self, _: "biconditional"
+
+    def binaryconnector(self, connector):
+        return BinaryConnector.from_str(connector[0])
+
+    def binarysentence(self, binarysentence):
+        sentence1, connector, sentence2 = binarysentence
+        return BinaryConnectorSentence(connector, sentence1, sentence2)
+
+    UNIVERSAL = lambda self, _: "universal"
+    EXISTENTIAL = lambda self, _: "existential"
+
+    def quantifier(self, quantifier):
+        return Quantifier.from_str(quantifier[0])
+
+    def quantifiersentence(self, quantifiersentence):
+        quantifier, variable, sentence = quantifiersentence
+        return QuantifierSentence(quantifier, variable, sentence)
 
     def variable(self, symbol):
         return Variable(symbol=symbol[0])
@@ -68,4 +99,5 @@ def parse(s):
     :param s: Sentence in string format
     :return: Sentence instance
     """
-    pass
+    tree = sentence_parser.parse(s)
+    return SentenceTransformer().transform(tree)
