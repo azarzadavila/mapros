@@ -5,6 +5,7 @@ import re
 
 from formal.models import ProofModel
 from formal.rules_inference import SentenceProof
+from formal.parser import parse
 
 
 class SentenceSerializer(serializers.Serializer):
@@ -116,3 +117,17 @@ class ProofModelSerializer(serializers.Serializer):
         instance.parent_position = validated_data["parent_position"]
         instance.save()
         return instance
+
+
+class TextSentenceSerializer(serializers.Serializer):
+    sentence = serializers.CharField(write_only=True)
+
+    def validate_sentence(self, sentence):
+        try:
+            sentence = parse(sentence)
+        except Exception:
+            serializers.ValidationError("failed to parse the sentence")
+        return sentence
+
+    def create(self, validated_data):
+        return validated_data["sentence"]
