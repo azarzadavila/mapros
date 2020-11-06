@@ -42,7 +42,7 @@ class TextToXmlSentence(APIView):
             sentence = serialiazer.save()
             try:
                 xml = sentence_to_xml(sentence)
-            except ValueError:
+            except Exception:
                 return Response(
                     {"xml": "failed to build xml"}, status=status.HTTP_400_BAD_REQUEST
                 )
