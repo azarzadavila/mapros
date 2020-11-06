@@ -53,6 +53,9 @@ class ConstantPredicate(Sentence):
     def __eq__(self, other):
         return self.symbol == other.symbol
 
+    def __str__(self):
+        return self.symbol
+
 
 class Predicate(Sentence):
     def __init__(self, symbol, *terms):
@@ -88,6 +91,13 @@ class Predicate(Sentence):
                 return False
         return True
 
+    def __str__(self):
+        res = self.symbol + "("
+        for term in self.terms:
+            res += str(term) + ", "
+        res += ")"
+        return res
+
 
 class UnaryConnectorSentence(Sentence):
     def __init__(self, connector, sentence):
@@ -120,6 +130,9 @@ class UnaryConnectorSentence(Sentence):
     def __eq__(self, other):
         return self.connector == other.connector and self.sentence == other.sentence
 
+    def __str__(self):
+        return str(self.connector) + " (" + str(self.sentence)
+
 
 class BinaryConnectorSentence(Sentence):
     def __init__(self, connector, sentence1, sentence2):
@@ -137,8 +150,8 @@ class BinaryConnectorSentence(Sentence):
             "binaryConnectorSentence",
             attrib={"connector": self.connector.to_str()},
         )
-        self.sentence1.add_to_tree(parent)
-        self.sentence2.add_to_tree(parent)
+        self.sentence1.add_to_tree(tree)
+        self.sentence2.add_to_tree(tree)
         return tree
 
     @classmethod
@@ -182,8 +195,8 @@ class QuantifierSentence(Sentence):
             "quantifierSentence",
             attrib={"quantifier": self.quantifier.to_str()},
         )
-        self.var.add_to_tree(parent)
-        self.sentence.add_to_tree(parent)
+        self.var.add_to_tree(tree)
+        self.sentence.add_to_tree(tree)
         return tree
 
     @classmethod
@@ -450,3 +463,9 @@ def build_from_tree(root):
     if len(root) != 1:
         raise ValueError("incorrect number of child for root")
     return build_from_tree_sentence(root[0])
+
+
+def sentence_to_xml(sentence):
+    root = ET.Element("sentence")
+    sentence.add_to_tree(root)
+    return ET.tostring(root)
