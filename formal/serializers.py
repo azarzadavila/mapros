@@ -1,11 +1,13 @@
 from rest_framework import serializers
 import xml.etree.ElementTree as ET
 from formal.grammar import build_from_tree
+from formal.proof import Proof
 import re
 
 from formal.models import ProofModel
 from formal.rules_inference import SentenceProof
 from formal.parser import parse
+from rest_framework_recursive.fields import RecursiveField
 
 
 class SentenceSerializer(serializers.Serializer):
@@ -117,6 +119,19 @@ class ProofModelSerializer(serializers.Serializer):
         instance.parent_position = validated_data["parent_position"]
         instance.save()
         return instance
+
+
+class ProofChildrenSerializer(serializers.Serializer):
+    sentence = SentenceSerializer()
+    sentence_proof = SentenceProofSerializer(allow_null=True)
+    children = serializers.ListField(child=RecursiveField(), allow_empty=True)
+
+    def create(self, validated_data):
+        return Proof(
+            validated_data["sentence"],
+            validated_data["children"],
+            validated_data["sentence_proof"],
+        )
 
 
 class TextSentenceSerializer(serializers.Serializer):

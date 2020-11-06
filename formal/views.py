@@ -7,7 +7,12 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from formal.serializers import SentenceSerializer, TextSentenceSerializer
+from formal.serializers import (
+    SentenceSerializer,
+    TextSentenceSerializer,
+    ProofChildrenSerializer,
+    SentenceProofSerializer,
+)
 from formal.grammar import sentence_to_xml
 
 
@@ -29,7 +34,7 @@ class TextToXmlSentence(APIView):
 
     @swagger_auto_schema(
         query_serializer=TextSentenceSerializer(),
-        responses={200: {"xml": "sentence in xml format"}, 400: ""},
+        responses={200: "{xml: sentence in xml format}", 400: ""},
     )
     def post(self, request, format=None):
         serialiazer = TextSentenceSerializer(data=request.data)
@@ -43,3 +48,29 @@ class TextToXmlSentence(APIView):
                 )
             return Response({"xml": xml}, status=status.HTTP_200_OK)
         return Response(serialiazer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckSentenceProof(APIView):
+    permission_classes = [AllowAny]
+
+    def post(self, request, format=None):
+        serializer = SentenceProofSerializer(data=request.data)
+        if serializer.is_valid():
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)
+
+
+class CheckStandAloneProof(APIView):
+    permission_classes = [AllowAny]
+
+    # @swagger_auto_schema(
+    #     query_serializer=ProofChildrenSerializer(), responses={200: "", 400: ""}
+    # )
+    def post(self, request, format=None):
+        serializer = ProofChildrenSerializer(data=request.data)
+        if serializer.is_valid():
+            proof = serializer.save()
+            if proof.check_proof(()):
+                return Response({"status": True}, status=status.HTTP_200_OK)
+            return Response({"status": False}, status=status.HTTP_200_OK)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
