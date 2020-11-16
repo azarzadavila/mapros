@@ -18,8 +18,7 @@ from formal.grammar import (
 )
 
 
-class SentenceProof(namedtuple("SentenceProof", ["rule", "proofs", "args"])):
-    pass
+SentenceProof = namedtuple("SentenceProof", ["rule", "proofs", "args"])
 
 
 def not_negation(negation):

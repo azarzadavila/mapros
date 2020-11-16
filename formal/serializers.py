@@ -136,9 +136,9 @@ class ProofChildrenSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         return Proof(
-            validated_data["sentence"],
-            validated_data["children"],
-            validated_data["sentence_proof"],
+            validated_data["sentence"]["sentence"],
+            [Proof(**child) for child in validated_data["children"]],
+            SentenceProof(**validated_data["sentence_proof"]),
         )
 
 
