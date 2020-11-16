@@ -54,25 +54,33 @@ def transform_proofs(proofs):
 
 class SentenceProofSerializer(serializers.Serializer):
     rule = serializers.CharField()
-    proofs = serializers.ListField(child=serializers.CharField(), allow_empty=True)
-    args = serializers.ListField(child=serializers.CharField(), allow_empty=True)
+    proofs = serializers.ListField(allow_empty=True)
+    args = serializers.ListField(
+        child=serializers.ListField(child=serializers.CharField(), allow_empty=True),
+        allow_empty=True,
+    )
 
     def validate_proofs(self, value):
-        for proof in value:
-            res = pattern_tuple_int.fullmatch(proof)
-            if res is None:
-                try:
-                    res = int(proof)
-                except Exception:
+        for i in range(len(value)):
+            proof = value[i]
+            if not isinstance(proof, int):
+                if isinstance(proof, list):
+                    for x in proof:
+                        if not isinstance(x, int):
+                            raise serializers.ValidationError(
+                                "proof is neither an int tuple nor an int"
+                            )
+                    value[i] = tuple(proof)
+                else:
                     raise serializers.ValidationError(
-                        "proof is neither an int tuple nor a int"
+                        "proof is neither an int tuple nor an int"
                     )
         return value
 
     def create(self, validated_data):
         return SentenceProof(
             rule=validated_data["rule"],
-            proofs=transform_proofs(validated_data["proofs"]),
+            proofs=validated_data["proofs"],
             args=validated_data["args"],
         )
 
