@@ -115,7 +115,6 @@ class Proof:
         parent.change_position_child(position)
 
     def from_existential_instantiation(self, position, var):
-        # TODO
         pass
 
     def is_free_in_premises(self, var):
@@ -170,7 +169,7 @@ class Proof:
                 var = args[0]
                 if self.from_existential_instantiation(position, var):
                     raise ValueError("variable comes from an existential instantiation")
-                if self.is_free_in_premises(position, var):
+                if self.is_free_in_premises(var):
                     raise ValueError("variable is free in a premise")
             elif rule == "universal_instantiation":
                 pass

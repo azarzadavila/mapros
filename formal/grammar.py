@@ -36,6 +36,7 @@ class Sentence(metaclass=abc.ABCMeta):
     def is_free(self, var):
         """
         Checks if the variable is free in this sentence
+        If the variable is not in the sentence it returns False
         :param var: Variable instance
         :return: True if var is free in the sentence, False otherwise
         """
@@ -58,6 +59,9 @@ class ConstantPredicate(Sentence):
 
     def substitute(self, var, new_var):
         return self
+
+    def is_free(self, var):
+        return False
 
     def __eq__(self, other):
         return self.symbol == other.symbol
@@ -89,6 +93,12 @@ class Predicate(Sentence):
     def substitute(self, var, new_var):
         new_terms = [term.substitute(var, new_var) for term in self.terms]
         return Predicate(self.symbol, new_terms)
+
+    def is_free(self, var):
+        for term in self.terms:
+            if term.is_free(var):
+                return True
+        return False
 
     def __eq__(self, other):
         if self.symbol != other.symbol:
@@ -136,6 +146,9 @@ class UnaryConnectorSentence(Sentence):
             self.connector, self.sentence.substitute(var, new_var)
         )
 
+    def is_free(self, var):
+        return self.sentence.is_free(var)
+
     def __eq__(self, other):
         return self.connector == other.connector and self.sentence == other.sentence
 
@@ -177,6 +190,9 @@ class BinaryConnectorSentence(Sentence):
             self.sentence1.substitute(var, new_var),
             self.sentence2.substitute(var, new_var),
         )
+
+    def is_free(self, var):
+        return self.sentence1.is_free(var) or self.sentence2.is_free(var)
 
     def __eq__(self, other):
         return (
@@ -225,6 +241,11 @@ class QuantifierSentence(Sentence):
             self.quantifier, self.var, self.sentence.substitute(var, new_var)
         )
 
+    def is_free(self, var):
+        if self.var == var:
+            return False
+        return self.sentence.is_free(var)
+
     def __eq__(self, other):
         return (
             self.quantifier == other.quantifier
@@ -257,6 +278,16 @@ class Term(metaclass=abc.ABCMeta):
     def substitute(self, var, new_var):
         pass
 
+    @abc.abstractmethod
+    def is_free(self, var):
+        """
+        Checks if the variable is free in this term
+        If the variable is not in the term it returns False
+        :param var: Variable instance
+        :return: True if var is free in the term, False otherwise
+        """
+        pass
+
 
 class Constant(Term):
     def __init__(self, symbol):
@@ -272,6 +303,9 @@ class Constant(Term):
 
     def substitute(self, var, new_var):
         return self
+
+    def is_free(self, var):
+        return False
 
     def __eq__(self, other):
         return self.symbol == other.symbol
@@ -295,6 +329,9 @@ class Variable(Term):
         if var == new_var:
             raise ValueError("variable capture")
         return self
+
+    def is_free(self, var):
+        return var == self
 
     def __eq__(self, other):
         return self.symbol == other.symbol
@@ -323,6 +360,12 @@ class Function(Term):
     def substitute(self, var, new_var):
         new_terms = [term.substitute(var, new_var) for term in self.terms]
         return Function(self.symbol, new_terms)
+
+    def is_free(self, var):
+        for term in self.terms:
+            if term.is_free(var):
+                return True
+        return False
 
     def __eq__(self, other):
         if self.symbol != other.symbol:
