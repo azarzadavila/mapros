@@ -32,6 +32,15 @@ class Sentence(metaclass=abc.ABCMeta):
         """
         pass
 
+    @abc.abstractmethod
+    def is_free(self, var):
+        """
+        Checks if the variable is free in this sentence
+        :param var: Variable instance
+        :return: True if var is free in the sentence, False otherwise
+        """
+        pass
+
 
 class ConstantPredicate(Sentence):
     def __init__(self, symbol):

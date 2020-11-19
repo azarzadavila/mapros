@@ -118,9 +118,19 @@ class Proof:
         # TODO
         pass
 
-    def is_free_in_premises(self, position, var):
-        # TODO
-        pass
+    def is_free_in_premises(self, var):
+        """
+        TODO check for external premises
+        :param var: Variable instance
+        :return: True if var is free in a premise, False otherwise
+        """
+        if self.sentence_proof is not None and self.sentence_proof.rule == "premise":
+            if self.sentence.is_free(var):
+                return True
+        for child in self.children:
+            if child.is_free_in_premises(var):
+                return True
+        return False
 
     def exists(self, position, var):
         # TODO
