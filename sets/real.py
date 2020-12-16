@@ -11,3 +11,9 @@ class Real:
 
     def __repr__(self):
         return "Real(symbol={})".format(self.symbol)
+
+    def __eq__(self, other):
+        return other.symbol == self.symbol
+
+    def __hash__(self):
+        return hash(self.symbol)
