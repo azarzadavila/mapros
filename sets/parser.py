@@ -1,4 +1,5 @@
 from lark import Lark, Transformer
+from sets.real import Real
 
 latex_parser = Lark(
     r"""
@@ -14,6 +15,14 @@ latex_parser = Lark(
 )
 
 
+def is_number(var):
+    try:
+        float(var)
+        return True
+    except ValueError:
+        return False
+
+
 class LatexTransformer(Transformer):
     def declaration(self, declaration):
         (symbol,) = declaration
@@ -21,7 +30,9 @@ class LatexTransformer(Transformer):
 
     def variable(self, var):
         (var,) = var
-        return var
+        if is_number(var):
+            return float(var)
+        return Real(symbol=var)
 
     def V1(self, v):
         return v.value
