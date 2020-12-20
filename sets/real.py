@@ -1,8 +1,8 @@
 class Real:
     def __init__(self, symbol=None):
-        self.equals = []
-        self.lower = []
-        self.greater = []
+        self.equals = set()
+        self.lower = set()
+        self.greater = set()
         self.symbol = symbol
 
     def __str__(self):
