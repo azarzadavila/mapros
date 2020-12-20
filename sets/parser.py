@@ -6,8 +6,9 @@ from sets.utils import Order
 
 latex_parser = Lark(
     r"""
-    latex_sentence: declaration | interval | order
+    latex_sentence: declaration | interval_declaration | order
     declaration: variable " \in \mathbb{R}" 
+    interval_declaration: variable EQ interval
     order: variable order_operator variable
     variable: V1 | V2
     order_operator: LT | LE | EQ | GT | GE
@@ -99,8 +100,13 @@ class LatexTransformer(Transformer):
         left, start, end, right = inter
         include_start = left == "["
         include_end = right == "]"
+        return start, end, include_start, include_end
+
+    def interval_declaration(self, inter_decl):
+        var, inter = inter_decl
+        start, end, include_start, include_end = inter
         return command.NewIntervalCommand(
-            self._receiver, start, end, include_start, include_end, symbol="I"
+            self._receiver, start, end, include_start, include_end, var
         )
 
 
