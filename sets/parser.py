@@ -1,6 +1,7 @@
 from lark import Lark, Transformer
 from sets.real import Real
 from sets.real_interval import RealInterval
+from sets import command
 
 latex_parser = Lark(
     r"""
@@ -36,19 +37,23 @@ def is_number(var):
 
 
 class LatexTransformer(Transformer):
+    def __init__(self, receiver):
+        super().__init__()
+        self._receiver = receiver
+
     def latex_sentence(self, latex):
         (latex,) = latex
         return latex
 
     def declaration(self, declaration):
         (symbol,) = declaration
-        return symbol
+        return command.NewVariableCommand(self._receiver, symbol)
 
     def variable(self, var):
         (var,) = var
         if is_number(var):
             return float(var)
-        return Real(symbol=var)
+        return var
 
     def V1(self, v):
         return v.value
@@ -70,9 +75,11 @@ class LatexTransformer(Transformer):
         left, start, end, right = inter
         include_start = left == "["
         include_end = right == "]"
-        return RealInterval(start, end, include_start, include_end)
+        return command.NewIntervalCommand(
+            self._receiver, start, end, include_start, include_end, symbol="I"
+        )
 
 
-def parse(s):
+def parse(s, receiver):
     tree = latex_parser.parse(s)
-    return LatexTransformer().transform(tree)
+    return LatexTransformer(receiver).transform(tree)
