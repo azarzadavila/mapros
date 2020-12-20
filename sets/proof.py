@@ -18,14 +18,14 @@ class ProofInterface(metaclass=abc.ABCMeta):
 
 class Proof(ProofInterface):
     def __init__(self):
-        self.variables = []
-        self.intervals = []
+        self.variables = set()
+        self.intervals = set()
 
     def add(self, var):
-        self.variables.append(Real(symbol=var))
+        self.variables.add(Real(symbol=var))
 
     def add_interval(self, interval):
-        self.intervals.append(interval)
+        self.intervals.add(interval)
 
     def get_var(self, var):
         for v in self.variables:
