@@ -2,7 +2,7 @@ import abc
 from sets.real import Real, apply_order
 
 
-class RealSetInterface(metaclass=abc.ABCMeta):
+class ProofInterface(metaclass=abc.ABCMeta):
     @abc.abstractmethod
     def add(self, var):
         pass
@@ -16,7 +16,7 @@ class RealSetInterface(metaclass=abc.ABCMeta):
         pass
 
 
-class RealSet(RealSetInterface):
+class Proof(ProofInterface):
     def __init__(self):
         self.variables = []
         self.intervals = []
