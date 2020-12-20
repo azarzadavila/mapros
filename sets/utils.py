@@ -2,8 +2,8 @@ from enum import Enum, auto
 
 
 class Order(Enum):
-    EQ = auto()
-    GEQ = auto()
-    LEQ = auto()
+    LT = auto()
     LE = auto()
-    GR = auto()
+    EQ = auto()
+    GT = auto()
+    GE = auto()
