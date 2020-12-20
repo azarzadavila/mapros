@@ -2,19 +2,20 @@ from lark import Lark, Transformer
 from sets.real import Real
 from sets.real_interval import RealInterval
 from sets import command
+from sets.utils import Order
 
 latex_parser = Lark(
     r"""
-    latex_sentence: declaration | interval
+    latex_sentence: declaration | interval | order
     declaration: variable " \in \mathbb{R}" 
     order: variable order_operator variable
     variable: V1 | V2
-    order_operator: GR | LO | GEQ | LEQ | EQ
-    GR: ">"
-    LO: "<"
-    GEQ: "\geq"
-    LEQ: "\leq"
+    order_operator: LT | LE | EQ | GT | GE
+    LT: "<"
+    LE: "\leq"
     EQ: "="
+    GT: ">"
+    GE: "\geq"
     V1: /\w+/
     V2: /\\\w+/
     interval: bracket variable "," variable bracket
@@ -70,6 +71,29 @@ class LatexTransformer(Transformer):
 
     def BRACKET_RIGHT(self, brack):
         return brack.value
+
+    def order(self, o):
+        var1, order_op, var2 = o
+        return command.OrderCommand(self._receiver, order_op, var1, var2)
+
+    def order_operator(self, order_op):
+        (order_op,) = order_op
+        return order_op
+
+    def LT(self, lt):
+        return Order.LT
+
+    def LE(self, le):
+        return Order.LE
+
+    def EQ(self, eq):
+        return Order.EQ
+
+    def GT(self, gt):
+        return Order.GT
+
+    def GE(self, ge):
+        return Order.GE
 
     def interval(self, inter):
         left, start, end, right = inter
