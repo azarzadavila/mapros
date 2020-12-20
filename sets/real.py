@@ -17,3 +17,7 @@ class Real:
 
     def __hash__(self):
         return hash(self.symbol)
+
+
+def apply_order(order, v1, v2):
+    pass
