@@ -1,6 +1,5 @@
 class Real:
-    def __init__(self, value=None, symbol=None):
-        self.value = value
+    def __init__(self, symbol=None):
         self.equals = []
         self.lower = []
         self.greater = []
