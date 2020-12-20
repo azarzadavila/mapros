@@ -27,3 +27,14 @@ class NewIntervalCommand(Command):
 
     def execute(self):
         self._receiver.add_interval(self.interval)
+
+
+class OrderCommand(Command):
+    def __init__(self, receiver, order, var1, var2):
+        super().__init__(receiver)
+        self.order = order
+        self.var1 = var1
+        self.var2 = var2
+
+    def execute(self):
+        self._receiver.add_order(self.var1, self.var2, self.order)
