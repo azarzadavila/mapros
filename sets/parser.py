@@ -6,7 +6,14 @@ latex_parser = Lark(
     r"""
     latex_sentence: declaration | interval
     declaration: variable " \in \mathbb{R}" 
+    order: variable order_operator variable
     variable: V1 | V2
+    order_operator: GR | LO | GEQ | LEQ | EQ
+    GR: ">"
+    LO: "<"
+    GEQ: "\geq"
+    LEQ: "\leq"
+    EQ: "="
     V1: /\w+/
     V2: /\\\w+/
     interval: bracket variable "," variable bracket
