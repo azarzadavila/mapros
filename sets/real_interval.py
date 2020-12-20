@@ -6,10 +6,6 @@ class RealInterval:
         self.include_end = include_end
         self.symbol = symbol
 
-    def intersection(self, interval):
-        if self.start in interval.start.greater and self.end in interval.end.greater:
-            return RealInterval(start=self.start, end=interval.end)
-
     def __str__(self):
         left = "[" if self.include_start else "]"
         right = "]" if self.include_end else "["
@@ -17,3 +13,9 @@ class RealInterval:
 
     def __repr__(self):
         return "RealInterval({})".format(str(self))
+
+    def __eq__(self, other):
+        return self.symbol == other.symbol
+
+    def __hash__(self):
+        return hash(self.symbol)
