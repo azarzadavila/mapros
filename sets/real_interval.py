@@ -1,9 +1,10 @@
 class RealInterval:
-    def __init__(self, start, end, include_start=True, include_end=True):
+    def __init__(self, start, end, include_start=True, include_end=True, symbol=None):
         self.start = start
         self.end = end
         self.include_start = include_start
         self.include_end = include_end
+        self.symbol = symbol
 
     def intersection(self, interval):
         if self.start in interval.start.greater and self.end in interval.end.greater:
