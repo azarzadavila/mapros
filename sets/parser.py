@@ -31,6 +31,15 @@ premise_parser = Lark(
     start="premise",
 )
 
+question_parser = Lark(
+    r"""
+    question: intersection
+    intersection: variable " \cap " variable | variable "\cap " variable
+    """
+    + variable_string,
+    start="question",
+)
+
 
 def is_number(var):
     try:
@@ -117,6 +126,25 @@ class PremiseTransformer(VariableTransformer):
         )
 
 
+class QuestionTransformer(VariableTransformer):
+    def __init__(self, receiver):
+        super().__init__()
+        self._receiver = receiver
+
+    def question(self, latex):
+        (latex,) = latex
+        return latex
+
+    def intersection(self, inter):
+        var1, var2 = inter
+        return command.IntersectionQuestion(self._receiver, var1, var2)
+
+
 def premise_parse(s, receiver):
     tree = premise_parser.parse(s)
     return PremiseTransformer(receiver).transform(tree)
+
+
+def question_parse(s, receiver):
+    tree = question_parser.parse(s)
+    return QuestionTransformer(receiver).transform(tree)
