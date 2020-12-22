@@ -38,3 +38,24 @@ class OrderCommand(Command):
 
     def execute(self):
         self._receiver.add_order(self.var1, self.var2, self.order)
+
+
+class Question(metaclass=abc.ABCMeta):
+    def __init__(self, receiver):
+        self._receiver = receiver
+
+    @abc.abstractmethod
+    def execute(self):
+        pass
+
+
+class IntersectionQuestion(Question):
+    def __init__(self, receiver, var1, var2):
+        super().__init__(receiver)
+        self.var1 = var1
+        self.var2 = var2
+
+    def execute(self):
+        return self._receiver.latex(
+            self._receiver.compute_intersection(self.var1, self.var2)
+        )
