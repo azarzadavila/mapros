@@ -39,5 +39,5 @@ class Ask(APIView):
                 )
             invoker.store_command(command)
             invoker.execute_commands()
-            return Response({"answer": invoker.result}, status=status.HTTP_200_OK)
+            return Response({"answer": str(invoker.result)}, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

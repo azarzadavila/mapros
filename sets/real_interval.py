@@ -22,4 +22,5 @@ class RealInterval:
 
 
 def intersection(inter1, inter2):
-    pass
+    # TODO
+    return RealInterval(inter1.start, inter2.end)
