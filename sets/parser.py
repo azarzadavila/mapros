@@ -24,7 +24,7 @@ premise_parser = Lark(
     r"""
     premise: declaration | interval_declaration | order
     declaration: variable " \in \mathbb{R}"
-    interval_declaration: variable EQ interval
+    interval_declaration: variable "=" interval
     order: variable order_operator variable
     """
     + variable_string,
