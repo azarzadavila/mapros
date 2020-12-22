@@ -1,5 +1,6 @@
 import abc
 from sets.real import Real, apply_order
+from sets.real_interval import intersection
 
 
 class ProofInterface(metaclass=abc.ABCMeta):
@@ -32,7 +33,17 @@ class Proof(ProofInterface):
             if v.symbol == var:
                 return v
 
+    def get_interval(self, var):
+        for v in self.intervals:
+            if v.symbol == var:
+                return v
+
     def add_order(self, order, var1, var2):
         v1 = self.get_var(var1)
         v2 = self.get_var(var2)
         apply_order(order, v1, v2)
+
+    def compute_intersection(self, var1, var2):
+        v1 = self.get_interval(var1)
+        v2 = self.get_interval(var2)
+        return intersection(v1, v2)

@@ -19,3 +19,7 @@ class RealInterval:
 
     def __hash__(self):
         return hash(self.symbol)
+
+
+def intersection(inter1, inter2):
+    pass
