@@ -56,6 +56,4 @@ class IntersectionQuestion(Question):
         self.var2 = var2
 
     def execute(self):
-        return self._receiver.latex(
-            self._receiver.compute_intersection(self.var1, self.var2)
-        )
+        return self._receiver.compute_intersection(self.var1, self.var2)
