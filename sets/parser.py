@@ -2,12 +2,7 @@ from lark import Lark, Transformer
 from sets import command
 from sets.utils import Order
 
-latex_parser = Lark(
-    r"""
-    latex_sentence: declaration | interval_declaration | order
-    declaration: variable " \in \mathbb{R}" 
-    interval_declaration: variable EQ interval
-    order: variable order_operator variable
+variable_string = r"""
     variable: V1 | V2
     order_operator: LT | LE | EQ | GT | GE
     LT: "<"
@@ -23,8 +18,17 @@ latex_parser = Lark(
     BRACKET_LEFT: "]"
     %import common.WS
     %ignore WS
-    """,
-    start="latex_sentence",
+"""
+
+premise_parser = Lark(
+    r"""
+    premise: declaration | interval_declaration | order
+    declaration: variable " \in \mathbb{R}"
+    interval_declaration: variable EQ interval
+    order: variable order_operator variable
+    """
+    + variable_string,
+    start="premise",
 )
 
 
@@ -36,18 +40,9 @@ def is_number(var):
         return False
 
 
-class LatexTransformer(Transformer):
-    def __init__(self, receiver):
+class VariableTransformer(Transformer):
+    def __init__(self):
         super().__init__()
-        self._receiver = receiver
-
-    def latex_sentence(self, latex):
-        (latex,) = latex
-        return latex
-
-    def declaration(self, declaration):
-        (symbol,) = declaration
-        return command.NewVariableCommand(self._receiver, symbol)
 
     def variable(self, var):
         (var,) = var
@@ -70,10 +65,6 @@ class LatexTransformer(Transformer):
 
     def BRACKET_RIGHT(self, brack):
         return brack.value
-
-    def order(self, o):
-        var1, order_op, var2 = o
-        return command.OrderCommand(self._receiver, order_op, var1, var2)
 
     def order_operator(self, order_op):
         (order_op,) = order_op
@@ -100,6 +91,24 @@ class LatexTransformer(Transformer):
         include_end = right == "]"
         return start, end, include_start, include_end
 
+
+class PremiseTransformer(VariableTransformer):
+    def __init__(self, receiver):
+        super().__init__()
+        self._receiver = receiver
+
+    def premise(self, latex):
+        (latex,) = latex
+        return latex
+
+    def declaration(self, declaration):
+        (symbol,) = declaration
+        return command.NewVariableCommand(self._receiver, symbol)
+
+    def order(self, o):
+        var1, order_op, var2 = o
+        return command.OrderCommand(self._receiver, order_op, var1, var2)
+
     def interval_declaration(self, inter_decl):
         var, inter = inter_decl
         start, end, include_start, include_end = inter
@@ -108,6 +117,6 @@ class LatexTransformer(Transformer):
         )
 
 
-def parse(s, receiver):
-    tree = latex_parser.parse(s)
-    return LatexTransformer(receiver).transform(tree)
+def premise_parse(s, receiver):
+    tree = premise_parser.parse(s)
+    return PremiseTransformer(receiver).transform(tree)
