@@ -49,6 +49,7 @@ urlpatterns = [
     # -- #
     path("", include("authentification.urls")),
     path("", include("formal.urls")),
+    path("intervals/", include("sets.urls")),
     path("hello/", views.hello_world),
     path("admin/", admin.site.urls),
 ]
