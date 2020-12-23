@@ -37,7 +37,7 @@ class OrderCommand(Command):
         self.var2 = var2
 
     def execute(self):
-        self._receiver.add_order(self.var1, self.var2, self.order)
+        self._receiver.add_order(self.order, self.var1, self.var2)
 
 
 class Question(metaclass=abc.ABCMeta):
