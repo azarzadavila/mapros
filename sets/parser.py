@@ -12,7 +12,7 @@ variable_string = r"""
     GE: "\geq"
     V1: /\w+/
     V2: /\\\w+/
-    interval: bracket variable "," variable bracket
+    interval: bracket variable "," variable bracket | "\left" bracket variable "," variable "\\right" bracket
     bracket: BRACKET_RIGHT | BRACKET_LEFT
     BRACKET_RIGHT: "["
     BRACKET_LEFT: "]"
@@ -23,7 +23,7 @@ variable_string = r"""
 premise_parser = Lark(
     r"""
     premise: declaration | interval_declaration | order
-    declaration: variable " \in \mathbb{R}"
+    declaration: variable " \in \mathbb{R}" | variable "\in\mathbb{R}"
     interval_declaration: variable "=" interval
     order: variable order_operator variable
     """

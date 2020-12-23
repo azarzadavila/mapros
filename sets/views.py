@@ -24,7 +24,8 @@ class Ask(APIView):
                     command = premise_parse(s, proof)
                 except (UnexpectedInput, VisitError):
                     return Response(
-                        {"message": "unknown command for premise : {}".format(s)}
+                        {"message": "unknown command for premise : {}".format(s)},
+                        status=status.HTTP_400_BAD_REQUEST,
                     )
                 invoker.store_command(command)
             try:
@@ -35,7 +36,8 @@ class Ask(APIView):
                         "message": "unknown command for question : {}".format(
                             serializer.validated_data["question"]
                         )
-                    }
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
             invoker.store_command(command)
             invoker.execute_commands()
