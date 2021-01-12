@@ -9,6 +9,19 @@ class LeanTheorem:
         self.hypotheses = hypotheses
         self.result = result
 
+    def to_html(self):
+        s = "<em>Theorem</em> : " + self.name + "<br>\n"
+        s += "Let\n<br>\n"
+        s += "<ul>\n"
+        for hypothesis in self.hypotheses:
+            s += "<li>"
+            s += hypothesis
+            s += "</li>\n"
+        s += "</ul>\n"
+        s += "Then,\n<br>\n"
+        s += str(self.result)
+        return s
+
 
 lean_string = r"""
     lean: "theorem" NAME hypotheses ":" result
