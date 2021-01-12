@@ -9,18 +9,24 @@ class Assertion:
         return self.s
 
 
-class Result:
-    def __init__(self, goal):
-        self.goal = goal
+class DeclarationAssertion:
+    def __init__(self, symbols, set_class):
+        self.symbols = symbols
+        self.set_class = set_class
 
     def to_html(self):
-        return self.goal
+        s = ""
+        for symbol in self.symbols[:-1]:
+            s += symbol + ", "
+        s += self.symbols[-1]
+        s += "∈ " + self.set_class
+        return s
 
 
-class ExistentialResult(Result):
+class ExistentialResult:
     def __init__(self, assertions, goal):
-        super().__init__(goal)
         self.assertions = assertions
+        self.goal = goal
 
     def to_html(self):
         s = "∃"
@@ -65,10 +71,14 @@ lean_string = r"""
     NAME: /\w+/
     existential_result: "∃" assertions "," string
     assertions: assertion*
-    assertion.2: "(" string ")" | "{" string "}"
+    assertion.2: "(" assertion_type ")" | "{" assertion_type "}"
+    assertion_type: declaration | assertion_basic
+    assertion_basic: string
+    declaration.2: WORD* ":" WORD
     goal: string
     string : S+
     S: /./
+    WORD: /[^\s:]/
     %import common.WS
     %ignore WS
 """
@@ -83,9 +93,29 @@ class LeanTransformer(Transformer):
     def NAME(self, name):
         return name.value
 
-    def assertion(self, assertion):
+    def WORD(self, word):
+        return word.value
+
+    def goal(self, goal):
+        (goal,) = goal
+        return Assertion(goal)
+
+    def assertion_type(self, assertion):
+        (assertion,) = assertion
+        return assertion
+
+    def assertion_basic(self, assertion):
         (assertion,) = assertion
         return Assertion(assertion)
+
+    def assertion(self, assertion):
+        (assertion,) = assertion
+        return assertion
+
+    def declaration(self, decl):
+        vars = decl[:-1]
+        set_class = decl[-1]
+        return DeclarationAssertion(vars, set_class)
 
     def assertions(self, assertions):
         return list(assertions)
@@ -99,10 +129,6 @@ class LeanTransformer(Transformer):
     def result(self, res):
         (res,) = res
         return res
-
-    def goal(self, s):
-        (s,) = s
-        return Result(s)
 
     def existential_result(self, result):
         assertions, goal = result
