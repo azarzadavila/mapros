@@ -89,7 +89,7 @@ lean_string = r"""
     goal: string
     string : S+
     S: /./
-    WORD: /[^\s:]/
+    WORD: /[^\s:]+/
     %import common.WS
     %ignore WS
 """
