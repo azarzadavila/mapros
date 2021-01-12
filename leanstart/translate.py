@@ -23,6 +23,16 @@ class DeclarationAssertion:
         return s
 
 
+class FunctionAssertion:
+    def __init__(self, name, start_set, end_set):
+        self.name = name
+        self.start_set = start_set
+        self.end_set = end_set
+
+    def to_html(self):
+        return self.name + ":" + self.start_set + "→" + self.end_set
+
+
 class ExistentialResult:
     def __init__(self, assertions, goal):
         self.assertions = assertions
@@ -72,8 +82,9 @@ lean_string = r"""
     existential_result: "∃" assertions "," string
     assertions: assertion*
     assertion.2: "(" assertion_type ")" | "{" assertion_type "}"
-    assertion_type: declaration | assertion_basic
+    assertion_type: declaration | function_declaration | assertion_basic
     assertion_basic: string
+    function_declaration.2: WORD ":" string "→" string
     declaration.2: WORD* ":" WORD
     goal: string
     string : S+
@@ -116,6 +127,10 @@ class LeanTransformer(Transformer):
         vars = decl[:-1]
         set_class = decl[-1]
         return DeclarationAssertion(vars, set_class)
+
+    def function_declaration(self, decl):
+        name, start_set, end_set = decl
+        return FunctionAssertion(name, start_set, end_set)
 
     def assertions(self, assertions):
         return list(assertions)
