@@ -1,8 +1,9 @@
 from lark import Lark, Transformer
 
 lean = r"""
-theorem: "theorem" LETTER_LIKE hypothesis* ":" result
-hypothesis: "(" LETTER_LIKE* ")"
+theorem: "theorem" LETTER_LIKE _hypothesis* ":" result
+_hypothesis: "(" hypothesis ")" | "{" hypothesis "}"
+hypothesis: LETTER_LIKE*
 result: LETTER_LIKE*
 LETTER_LIKE: /[^\s\n\t\r:\(\)\[\]]+/
 %import common.WS
