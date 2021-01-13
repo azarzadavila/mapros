@@ -76,20 +76,19 @@ class LeanTheorem:
 
 
 lean_string = r"""
-    lean: "theorem" NAME assertions ":" result
+    lean: "theorem" LETTER_LIKE hypotheses ":" result
+    hypotheses: _hypothesis*
+    _hypothesis: "(" hypothesis ")" | "{" hypothesis "}"
+    hypothesis: function_declaration | declaration | named_hypothesis | basic_hypothesis
+    function_declaration: LETTER_LIKE ":" DOMAIN "→" DOMAIN
+    declaration: LETTER_LIKE* ":" DOMAIN
+    DOMAIN: LETTER_LIKE
+    named_hypothesis: LETTER_LIKE ":" LETTER_LIKE*
+    basic_hypothesis: LETTER_LIKE*
     result: existential_result | goal
-    NAME: /\w+/
-    existential_result: "∃" assertions "," string
-    assertions: assertion*
-    assertion.2: "(" assertion_type ")" | "{" assertion_type "}"
-    assertion_type: declaration | function_declaration | assertion_basic
-    assertion_basic: string
-    function_declaration.2: WORD ":" string "→" string
-    declaration.2: WORD* ":" WORD
-    goal: string
-    string : S+
-    S: /./
-    WORD: /[^\s:]+/
+    existential_result: "∃" hypotheses "," LETTER_LIKE*
+    goal: LETTER_LIKE*
+    LETTER_LIKE: /[^\s:\n\t\r\(\){}]+/
     %import common.WS
     %ignore WS
 """
@@ -101,57 +100,52 @@ class LeanTransformer(Transformer):
     def __init__(self):
         super().__init__()
 
-    def NAME(self, name):
-        return name.value
+    def lean(self, res):
+        name, hypotheses, result = res
+        return LeanTheorem(name, hypotheses, result)
 
-    def WORD(self, word):
-        return word.value
+    def hypotheses(self, hyps):
+        return list(hyps)
 
-    def goal(self, goal):
-        (goal,) = goal
-        return Assertion(goal)
+    def hypothesis(self, hyp):
+        (hyp,) = hyp
+        return hyp
 
-    def assertion_type(self, assertion):
-        (assertion,) = assertion
-        return assertion
-
-    def assertion_basic(self, assertion):
-        (assertion,) = assertion
-        return Assertion(assertion)
-
-    def assertion(self, assertion):
-        (assertion,) = assertion
-        return assertion
+    def function_declaration(self, fct):
+        name, domain, image_domain = fct
+        return FunctionAssertion(name, domain, image_domain)
 
     def declaration(self, decl):
         vars = decl[:-1]
-        set_class = decl[-1]
-        return DeclarationAssertion(vars, set_class)
+        domain = decl[-1]
+        return DeclarationAssertion(vars, domain)
 
-    def function_declaration(self, decl):
-        name, start_set, end_set = decl
-        return FunctionAssertion(name, start_set, end_set)
+    def DOMAIN(self, dom):
+        print(dom)
+        return dom.value
 
-    def assertions(self, assertions):
-        return list(assertions)
+    def named_hypothesis(self, hyp):
+        name = hyp[0]
+        hyps = hyp[1:]
+        return Assertion(" ".join(hyps))
 
-    def S(self, s):
-        return s.value
-
-    def string(self, s):
-        return "".join(s)
+    def basic_hypothesis(self, hyp):
+        return " ".join(hyp)
 
     def result(self, res):
         (res,) = res
         return res
 
-    def existential_result(self, result):
-        assertions, goal = result
-        return ExistentialResult(assertions, goal)
+    def existential_result(self, res):
+        hyps = res[0]
+        goal = res[1:]
+        return ExistentialResult(hyps, " ".join(goal))
 
-    def lean(self, lean_s):
-        name, hypotheses, result = lean_s
-        return LeanTheorem(name, hypotheses, result)
+    def goal(self, res):
+        return " ".join(res)
+
+    def LETTER_LIKE(self, v):
+        return v.value
 
 
 def parse(s):
@@ -166,3 +160,8 @@ def lean_to_html(path):
     html = lean_theorem.to_html()
     html_file = open("result.html", "w")
     html_file.write(html)
+
+
+if __name__ == "__main__":
+    # lean_to_html("example.txt")
+    lean_to_html("easy.txt")
