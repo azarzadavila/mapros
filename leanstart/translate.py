@@ -33,6 +33,15 @@ class FunctionAssertion:
         return self.name + ":" + self.start_set + "→" + self.end_set
 
 
+class ContinuousHypothesis:
+    def __init__(self, name, expr):
+        self.name = name
+        self.expr = expr
+
+    def to_html(self):
+        return self.name + " is continous on " + self.expr
+
+
 class ExistentialResult:
     def __init__(self, assertions, goal):
         self.assertions = assertions
@@ -83,7 +92,10 @@ lean_string = r"""
     function_declaration: LETTER_LIKE ":" DOMAIN "→" DOMAIN
     declaration: LETTER_LIKE* ":" DOMAIN
     DOMAIN: LETTER_LIKE
-    named_hypothesis: LETTER_LIKE ":" expr
+    named_hypothesis: LETTER_LIKE ":" _named_hyp
+    _named_hyp: continuous_on | simple_hypothesis
+    continuous_on: "continuous_on" LETTER_LIKE expr
+    simple_hypothesis: expr
     basic_hypothesis: LETTER_LIKE*
     result: existential_result | goal
     existential_result: "∃" hypotheses "," expr
@@ -131,7 +143,14 @@ class LeanTransformer(Transformer):
     def named_hypothesis(self, hyp):
         name = hyp[0]
         hyps = hyp[1]
-        return Assertion(hyps)
+        return hyps
+
+    def continuous_on(self, hyp):
+        name, expr = hyp
+        return ContinuousHypothesis(name, expr)
+
+    def simple_hypothesis(self, hyp):
+        return Assertion(hyp[0])
 
     def basic_hypothesis(self, hyp):
         return " ".join(hyp)
