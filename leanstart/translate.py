@@ -83,11 +83,16 @@ lean_string = r"""
     function_declaration: LETTER_LIKE ":" DOMAIN "→" DOMAIN
     declaration: LETTER_LIKE* ":" DOMAIN
     DOMAIN: LETTER_LIKE
-    named_hypothesis: LETTER_LIKE ":" LETTER_LIKE*
+    named_hypothesis: LETTER_LIKE ":" expr
     basic_hypothesis: LETTER_LIKE*
     result: existential_result | goal
-    existential_result: "∃" hypotheses "," LETTER_LIKE*
+    existential_result: "∃" hypotheses "," expr
     goal: LETTER_LIKE*
+    !expr: LETTER_LIKE
+          | SEP+ expr
+          | expr SEP+ expr
+          | "(" expr ")"
+    SEP: " " | "\n" | "\r" | "\t"
     LETTER_LIKE: /[^\s:\n\t\r\(\){}]+/
     %import common.WS
     %ignore WS
@@ -121,13 +126,12 @@ class LeanTransformer(Transformer):
         return DeclarationAssertion(vars, domain)
 
     def DOMAIN(self, dom):
-        print(dom)
         return dom.value
 
     def named_hypothesis(self, hyp):
         name = hyp[0]
-        hyps = hyp[1:]
-        return Assertion(" ".join(hyps))
+        hyps = hyp[1]
+        return Assertion(hyps)
 
     def basic_hypothesis(self, hyp):
         return " ".join(hyp)
@@ -138,11 +142,17 @@ class LeanTransformer(Transformer):
 
     def existential_result(self, res):
         hyps = res[0]
-        goal = res[1:]
-        return ExistentialResult(hyps, " ".join(goal))
+        goal = res[1]
+        return ExistentialResult(hyps, goal)
 
     def goal(self, res):
         return " ".join(res)
+
+    def expr(self, exp):
+        return "".join(exp)
+
+    def SEP(self, sep):
+        return sep.value
 
     def LETTER_LIKE(self, v):
         return v.value
@@ -163,5 +173,5 @@ def lean_to_html(path):
 
 
 if __name__ == "__main__":
-    # lean_to_html("example.txt")
-    lean_to_html("easy.txt")
+    lean_to_html("example.txt")
+    # lean_to_html("easy.txt")
