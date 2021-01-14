@@ -71,6 +71,22 @@ class ContinuousHypothesis:
         return self.name + " is continous on " + self.expr.to_html()
 
 
+class DifferentiableHypothesis:
+    def __init__(self, dom, name, expr):
+        self.dom = dom
+        self.name = name
+        self.expr = expr
+
+    def to_html(self):
+        return (
+            self.name
+            + " is differentiable on "
+            + self.expr.to_html()
+            + " to "
+            + self.dom
+        )
+
+
 class ExistentialResult:
     def __init__(self, assertions, goal):
         self.assertions = assertions
@@ -122,8 +138,9 @@ lean_string = r"""
     declaration: LETTER_LIKE* ":" DOMAIN
     DOMAIN: LETTER_LIKE
     named_hypothesis: LETTER_LIKE ":" _named_hyp
-    _named_hyp: continuous_on | expr
+    _named_hyp: continuous_on | differentiable_on | expr
     continuous_on: "continuous_on" LETTER_LIKE expr
+    differentiable_on: "differentiable_on" DOMAIN LETTER_LIKE expr
     basic_hypothesis: LETTER_LIKE*
     result: existential_result | goal
     existential_result: "∃" hypotheses "," expr
@@ -182,6 +199,10 @@ class LeanTransformer(Transformer):
     def continuous_on(self, hyp):
         name, expr = hyp
         return ContinuousHypothesis(name, expr)
+
+    def differentiable_on(self, hyp):
+        dom, name, expr = hyp
+        return DifferentiableHypothesis(dom, name, expr)
 
     def basic_hypothesis(self, hyp):
         return " ".join(hyp)
