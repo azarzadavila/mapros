@@ -13,7 +13,16 @@ class IntervalExpr:
         self.end = end
 
     def to_html(self):
-        return self.left + self.start + ", " + self.end + self.right
+        return self.left + self.start.to_html() + ", " + self.end.to_html() + self.right
+
+
+class DerivExpr:
+    def __init__(self, fct, point):
+        self.fct = fct
+        self.point = point
+
+    def to_html(self):
+        return self.fct.to_html() + "'(" + self.point.to_html() + ")"
 
 
 class Expression:
@@ -147,14 +156,16 @@ lean_string = r"""
     goal: LETTER_LIKE*
     !expr: LETTER_LIKE
           | interval
+          | deriv
           | SEP+ expr
           | expr SEP+ expr
           | "(" expr ")"
     !unary_expr: LETTER_LIKE
                | SEP+ unary_expr
                | "(" expr ")"
-    interval: INTERVAL_TYPE unary_expr SEP+ unary_expr
+    interval.2: INTERVAL_TYPE unary_expr SEP+ unary_expr
     INTERVAL_TYPE: "set.Ioo" | "set.Icc"
+    deriv.2: "deriv" unary_expr SEP+ unary_expr
     SEP: " " | "\n" | "\r" | "\t"
     LETTER_LIKE: /[^\s:\n\t\r\(\){}]+/
     %import common.WS
@@ -223,7 +234,7 @@ class LeanTransformer(Transformer):
         return Expression(exp)
 
     def unary_expr(self, unary_expr):
-        return unary_expr[0]
+        return Expression(unary_expr[0])
 
     def interval(self, inter):
         inter_type = inter[0]
@@ -233,6 +244,11 @@ class LeanTransformer(Transformer):
 
     def INTERVAL_TYPE(self, inter):
         return inter.value
+
+    def deriv(self, der):
+        fct = der[0]
+        point = der[-1]
+        return DerivExpr(fct, point)
 
     def SEP(self, sep):
         return sep.value
