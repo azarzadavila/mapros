@@ -1,6 +1,35 @@
 from lark import Lark, Transformer
 
 
+class IntervalExpr:
+    def __init__(self, inter_type, start, end):
+        if inter_type == "set.Ioo":
+            self.left = "]"
+            self.right = "["
+        elif inter_type == "set.Icc":
+            self.left = "["
+            self.right = "]"
+        self.start = start
+        self.end = end
+
+    def to_html(self):
+        return self.left + self.start + ", " + self.end + self.right
+
+
+class Expression:
+    def __init__(self, items):
+        self.items = items
+
+    def to_html(self):
+        s = ""
+        for item in self.items:
+            if isinstance(item, str):
+                s += item
+            else:
+                s += item.to_html()
+        return s
+
+
 class Assertion:
     def __init__(self, s):
         self.s = s
@@ -39,7 +68,7 @@ class ContinuousHypothesis:
         self.expr = expr
 
     def to_html(self):
-        return self.name + " is continous on " + self.expr
+        return self.name + " is continous on " + self.expr.to_html()
 
 
 class ExistentialResult:
@@ -58,7 +87,7 @@ class ExistentialResult:
                 s += "</li>\n"
             s += "</ul>"
         s += "such that\n<br>\n"
-        s += self.goal
+        s += self.goal.to_html()
         return s
 
 
@@ -93,17 +122,22 @@ lean_string = r"""
     declaration: LETTER_LIKE* ":" DOMAIN
     DOMAIN: LETTER_LIKE
     named_hypothesis: LETTER_LIKE ":" _named_hyp
-    _named_hyp: continuous_on | simple_hypothesis
+    _named_hyp: continuous_on | expr
     continuous_on: "continuous_on" LETTER_LIKE expr
-    simple_hypothesis: expr
     basic_hypothesis: LETTER_LIKE*
     result: existential_result | goal
     existential_result: "∃" hypotheses "," expr
     goal: LETTER_LIKE*
     !expr: LETTER_LIKE
+          | interval
           | SEP+ expr
           | expr SEP+ expr
           | "(" expr ")"
+    !unary_expr: LETTER_LIKE
+               | SEP+ unary_expr
+               | "(" expr ")"
+    interval: INTERVAL_TYPE unary_expr SEP+ unary_expr
+    INTERVAL_TYPE: "set.Ioo" | "set.Icc"
     SEP: " " | "\n" | "\r" | "\t"
     LETTER_LIKE: /[^\s:\n\t\r\(\){}]+/
     %import common.WS
@@ -149,9 +183,6 @@ class LeanTransformer(Transformer):
         name, expr = hyp
         return ContinuousHypothesis(name, expr)
 
-    def simple_hypothesis(self, hyp):
-        return Assertion(hyp[0])
-
     def basic_hypothesis(self, hyp):
         return " ".join(hyp)
 
@@ -168,7 +199,19 @@ class LeanTransformer(Transformer):
         return " ".join(res)
 
     def expr(self, exp):
-        return "".join(exp)
+        return Expression(exp)
+
+    def unary_expr(self, unary_expr):
+        return unary_expr[0]
+
+    def interval(self, inter):
+        inter_type = inter[0]
+        start = inter[1]
+        end = inter[-1]
+        return IntervalExpr(inter_type, start, end)
+
+    def INTERVAL_TYPE(self, inter):
+        return inter.value
 
     def SEP(self, sep):
         return sep.value
