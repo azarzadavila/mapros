@@ -6,7 +6,8 @@ grammar = r"""
     NAME: /\w+/
     hypotheses: (_hypothesis _WS)+
     _hypothesis: "(" hypothesis ")"
-    hypothesis: other
+    hypothesis: named_hypothesis
+    named_hypothesis: NAME _WS ":" _WS other
     result: other
     other: /\w+/
     _WS: " "
@@ -20,6 +21,6 @@ def preprocess(s):
     return s.strip()
 
 
-s = "theorem exists_ratio_deriv_eq_ratio_slope (okey) (another) : this"
+s = "theorem exists_ratio_deriv_eq_ratio_slope (ha : a) (hb : b) : this"
 
 print(parser.parse(preprocess(s)).pretty())
