@@ -2,10 +2,11 @@ from lark import Lark
 import re
 
 grammar = r"""
-    theorem: "theorem" _WS NAME _WS hypotheses_res
+    theorem: "theorem" _WS NAME _WS hypotheses ":" _WS result
     NAME: /\w+/
-    hypotheses_res: hypothesis _WS ":" _WS result | hypothesis _WS hypotheses_res
-    hypothesis: "(" other ")"
+    hypotheses: (_hypothesis _WS)+
+    _hypothesis: "(" hypothesis ")"
+    hypothesis: other
     result: other
     other: /\w+/
     _WS: " "
@@ -19,6 +20,6 @@ def preprocess(s):
     return s.strip()
 
 
-s = "theorem exists_ratio_deriv_eq_ratio_slope (okey) : this"
+s = "theorem exists_ratio_deriv_eq_ratio_slope (okey) (another) : this"
 
 print(parser.parse(preprocess(s)).pretty())
