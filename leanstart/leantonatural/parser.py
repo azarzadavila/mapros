@@ -1,9 +1,11 @@
-from lark import Lark
+from lark import Lark, Transformer
+
+from leanstart.leantonatural.leanhtml import LeanHtml
 
 grammar = r"""
     start: _SEP* atomic_start (_SEP+ atomic_start)* _SEP+ theorem_proof
-    atomic_start: import | open
-    import: "import" _SEP+ IMPORT
+    atomic_start: import_rule | open
+    import_rule: "import" _SEP+ IMPORT
     IMPORT: /\S+/
     open: "open" _SEP+ OPEN
     OPEN: /\S+/
@@ -22,18 +24,15 @@ grammar = r"""
 """
 
 parser = Lark(grammar)
-s = r"""
-import data.nat.prime
 
-open nat
 
-theorem infinitude_of_prime (hello) (here is another)(again)((nani:)a) : exists a, prime p :=
-begin
-    p1
-    begin
-        p2
-    end
-    p3 p4
-end
-"""
-print(parser.parse(s).pretty())
+class LeanTransformer(Transformer):
+    def start(self, node):
+        start_html = node[:-1]
+        theorem_proof_html = node[-1]
+        return LeanHtml(start_html, theorem_proof_html)
+
+
+def transform(s):
+    tree = parser.parse(s)
+    return LeanTransformer().transform(tree)
