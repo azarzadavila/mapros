@@ -1,6 +1,6 @@
 from lark import Lark, Transformer
 
-from leanstart.leantonatural.leanhtml import LeanHtml
+import leanstart.leantonatural.leanhtml as lhtml
 
 grammar = r"""
     start: _SEP* atomic_start (_SEP+ atomic_start)* _SEP+ theorem_proof
@@ -30,7 +30,32 @@ class LeanTransformer(Transformer):
     def start(self, node):
         start_html = node[:-1]
         theorem_proof_html = node[-1]
-        return LeanHtml(start_html, theorem_proof_html)
+        return lhtml.LeanHtml(start_html, theorem_proof_html)
+
+    def atomic_start(self, node):
+        (node,) = node
+        return node
+
+    def import_rule(self, node):
+        (node,) = node
+        return node
+
+    def IMPORT(self, terminal):
+        return lhtml.ImportHtml(terminal)
+
+    def open(self, node):
+        (node,) = node
+        return node
+
+    def OPEN(self, terminal):
+        return lhtml.OpenHtml(terminal)
+
+    def theorem_proof(self, node):
+        name = node[0]
+        hypotheses = node[1]
+        statements = node[2]
+        proof = node[3]
+        return lhtml.TheoremProofHtml(name, hypotheses, statements, proof)
 
 
 def transform(s):
