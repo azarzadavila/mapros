@@ -9,7 +9,7 @@ class LeanHtml:
         self.theorem_proof = theorem_proof
 
     def to_html(self):
-        res = "# Starting instructions\n"
+        res = "<h1>Starting instructions</h1>\n"
         res += "<ul>\n"
         for s in self.start:
             res += "<li>" + s.to_html() + "</li>\n"
@@ -42,7 +42,7 @@ class TheoremProofHtml:
         self.proof = proof
 
     def to_html(self):
-        res = "# Theorem " + self.name + ":"
+        res = "<h1>Theorem " + self.name + ":</h1>\n"
         res += "Let:\n<br>\n"
         res += "<ul>"
         for s in self.hypotheses:
@@ -51,7 +51,7 @@ class TheoremProofHtml:
         res += "Then,\n<br>\n"
         for s in self.statements:
             res += "<li>" + s.to_html() + "</li>\n"
-        res += "## Proof:\n"
+        res += "<h2> Proof:</h2>\n"
         res += self.proof.to_html()
         return res
 
@@ -81,7 +81,7 @@ class ProofHtml:
         for content in self.proof_content:
             res += "<li>"
             if isinstance(content, ProofHtml):
-                res += "\n"
+                res += "\n<br>\n"
                 res += content.to_html()
                 res += "\n"
             else:

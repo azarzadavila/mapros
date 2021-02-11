@@ -79,6 +79,12 @@ class LeanTransformer(Transformer):
     def proof(self, node):
         return lhtml.ProofHtml(list(node))
 
+    def proof_content(self, node):
+        if len(node) == 1:
+            return node[0]
+        else:
+            return "".join(node)
+
     def PROOF_CONTENT(self, terminal):
         return terminal
 
