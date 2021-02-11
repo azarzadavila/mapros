@@ -58,11 +58,29 @@ class LeanTransformer(Transformer):
         proof = node[3]
         return lhtml.TheoremProofHtml(name, hypotheses, statements, proof)
 
+    def NAME(self, terminal):
+        return terminal
+
     def hypotheses(self, node):
         return list(node)
 
     def hypothesis(self, node):
-        return "".join(node)
+        return lhtml.HypothesisHtml("".join(node))
+
+    def NOT_PAR(self, terminal):
+        return terminal
+
+    def statements(self, node):
+        return list(node)
+
+    def STATEMENT(self, terminal):
+        return lhtml.StatementHtml(terminal)
+
+    def proof(self, node):
+        return lhtml.ProofHtml(list(node))
+
+    def PROOF_CONTENT(self, terminal):
+        return terminal
 
 
 def transform(s):

@@ -54,3 +54,38 @@ class TheoremProofHtml:
         res += "## Proof:\n"
         res += self.proof.to_html()
         return res
+
+
+class HypothesisHtml:
+    def __init__(self, hyp):
+        self.hyp = hyp
+
+    def to_html(self):
+        return self.hyp
+
+
+class StatementHtml:
+    def __init__(self, stmt):
+        self.stmt = stmt
+
+    def to_html(self):
+        return self.stmt
+
+
+class ProofHtml:
+    def __init__(self, proof_content):
+        self.proof_content = proof_content
+
+    def to_html(self):
+        res = "<ol>\n"
+        for content in self.proof_content:
+            res += "<li>"
+            if isinstance(content, ProofHtml):
+                res += "\n"
+                res += content.to_html()
+                res += "\n"
+            else:
+                res += content
+            res += "</li>"
+        res += "</ol>"
+        return res
