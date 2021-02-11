@@ -1,3 +1,4 @@
+# import leanstart.leantonatural.parser as parser
 import parser
 
 
@@ -17,3 +18,6 @@ def parser_test():
     end
     """
     print(parser.parser.parse(s).pretty())
+
+
+parser_test()
