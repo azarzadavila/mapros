@@ -37,5 +37,22 @@ def html_test():
     lean_to_html(input_string=s, output_file="html_test.html")
 
 
+def html_test_interval():
+    s = r"""
+    import data.nat.prime
+    open nat
+    theorem infinitude_of_prime (a b : R) (h1 : set.Icc a b) (h2 : set.Ico a b) (h3 : set.Ioc a b) (h4 : set.Icc a b) : exists a, prime p :=
+    begin
+        p1
+        begin
+            p2
+        end
+        p3 p4
+    end
+    """
+    lean_to_html(input_string=s, output_file="html_test_interval.html")
+
+
 parser_test()
 html_test()
+html_test_interval()

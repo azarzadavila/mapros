@@ -9,8 +9,10 @@ grammar = r"""
     named_hypothesis: IDENTIFIER _SEP* ":" _SEP* _named_hypothesis
     _named_hypothesis: expr
     expr: basic_expr (_SEP+ basic_expr)*
-    basic_expr: par_expr | LETTER_LIKE
+    basic_expr: par_expr | interval | LETTER_LIKE
     par_expr: "(" _SEP* expr _SEP* ")"
+    interval.2: INTERVAL_TYPE _SEP+ (par_expr | LETTER_LIKE) _SEP+ (par_expr | LETTER_LIKE)
+    INTERVAL_TYPE: "set.Ioo" | "set.Ico" | "set.Ioc" | "set.Icc"
     IDENTIFIER: /[^\s\(\)]+/
     DOMAIN: /[^\s\(\)]+/
     LETTER_LIKE: /[^\s\(\)]+/
@@ -49,6 +51,12 @@ class HypothesisTransformer(Transformer):
     def par_expr(self, node):
         return lhtml.ParExprHtml(node[0])
 
+    def interval(self, node):
+        inter_type = node[0]
+        inter_start = lhtml.BasicHtml(node[1])
+        inter_end = lhtml.BasicHtml(node[2])
+        return lhtml.IntervalHtml(inter_type, inter_start, inter_end)
+
     def LETTER_LIKE(self, terminal):
         return terminal
 
@@ -61,6 +69,7 @@ class HypothesisTransformer(Transformer):
 
 def transform(s):
     tree = parser.parse(s)
+    print(tree.pretty())
     return HypothesisTransformer().transform(tree)
 
 

@@ -109,12 +109,36 @@ class ExprHtml:
         return res
 
 
+class BasicHtml:
+    def __init__(self, s):
+        self.s = s
+
+    def to_html(self):
+        if isinstance(self.s, str):
+            return self.s
+        else:
+            return self.s.to_html()
+
+
 class ParExprHtml:
     def __init__(self, expr):
         self.expr = expr
 
     def to_html(self):
         return "(" + self.expr.to_html() + ")"
+
+
+class IntervalHtml:
+    def __init__(self, inter_type, start, end):
+        inter_type_start = inter_type[-2]
+        inter_type_end = inter_type[-1]
+        self.left = "]" if inter_type_start == "o" else "["
+        self.right = "[" if inter_type_end == "o" else "]"
+        self.start = start
+        self.end = end
+
+    def to_html(self):
+        return self.left + self.start.to_html() + ", " + self.end.to_html() + self.right
 
 
 class StatementHtml:
