@@ -147,7 +147,16 @@ class DerivHtml:
         self.point = point
 
     def to_html(self):
-        return self.fct + "'(" + self.point.to_html() + ")"
+        return self.fct.to_html() + "'(" + self.point.to_html() + ")"
+
+
+class ContinuousOnHtml:
+    def __init__(self, fct, on):
+        self.fct = fct
+        self.on = on
+
+    def to_html(self):
+        return self.fct.to_html() + " is continuous on " + self.on.to_html()
 
 
 class StatementHtml:

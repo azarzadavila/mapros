@@ -69,7 +69,24 @@ def html_test_deriv():
     lean_to_html(input_string=s, output_file="html_test_deriv.html")
 
 
+def html_test_continuous_on():
+    s = r"""
+    import data.nat.prime
+    open nat
+    theorem infinitude_of_prime (a b : R) (f : R → R) (h1 : continuous_on f (set.Icc a b)) : exists a, prime p :=
+    begin
+        p1
+        begin
+            p2
+        end
+        p3 p4
+    end
+    """
+    lean_to_html(input_string=s, output_file="html_test_continuous_on.html")
+
+
 parser_test()
 html_test()
 html_test_interval()
 html_test_deriv()
+html_test_continuous_on()
