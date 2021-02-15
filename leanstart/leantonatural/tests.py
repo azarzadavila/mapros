@@ -53,6 +53,23 @@ def html_test_interval():
     lean_to_html(input_string=s, output_file="html_test_interval.html")
 
 
+def html_test_deriv():
+    s = r"""
+    import data.nat.prime
+    open nat
+    theorem infinitude_of_prime (a b : R) (f : R → R) (h1 : b = deriv f a) : exists a, prime p :=
+    begin
+        p1
+        begin
+            p2
+        end
+        p3 p4
+    end
+    """
+    lean_to_html(input_string=s, output_file="html_test_deriv.html")
+
+
 parser_test()
 html_test()
 html_test_interval()
+html_test_deriv()

@@ -141,6 +141,15 @@ class IntervalHtml:
         return self.left + self.start.to_html() + ", " + self.end.to_html() + self.right
 
 
+class DerivHtml:
+    def __init__(self, fct, point):
+        self.fct = fct
+        self.point = point
+
+    def to_html(self):
+        return self.fct + "'(" + self.point.to_html() + ")"
+
+
 class StatementHtml:
     def __init__(self, stmt):
         self.stmt = stmt
