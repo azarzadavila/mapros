@@ -61,7 +61,7 @@ class HypothesisHtml:
         self.hyp = hyp
 
     def to_html(self):
-        return self.hyp
+        return self.hyp.to_html()
 
 
 class FunctionDeclarationHtml:
@@ -93,6 +93,28 @@ class DeclarationHtml:
         res += self.identifiers[-1]
         res += " ∈ " + self.domain
         return res
+
+
+class ExprHtml:
+    def __init__(self, expr):
+        self.expr = expr
+
+    def to_html(self):
+        res = ""
+        for s in self.expr:
+            if isinstance(s, str):
+                res += s
+            else:
+                res += s.to_html()
+        return res
+
+
+class ParExprHtml:
+    def __init__(self, expr):
+        self.expr = expr
+
+    def to_html(self):
+        return "(" + self.expr.to_html() + ")"
 
 
 class StatementHtml:
