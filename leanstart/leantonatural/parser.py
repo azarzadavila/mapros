@@ -2,6 +2,7 @@ from lark import Lark, Transformer
 
 # import leanstart.leantonatural.leanhtml as lhtml
 import leanhtml as lhtml
+import hypotheses_parser
 
 grammar = r"""
     start: _SEP* atomic_start (_SEP+ atomic_start)* _SEP+ theorem_proof
@@ -62,10 +63,10 @@ class LeanTransformer(Transformer):
         return terminal
 
     def hypotheses(self, node):
-        return list(node)
+        return hypotheses_parser.transform_list(node)
 
     def hypothesis(self, node):
-        return lhtml.HypothesisHtml("".join(node))
+        return "".join(node)
 
     def NOT_PAR(self, terminal):
         return terminal

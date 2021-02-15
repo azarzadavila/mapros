@@ -64,6 +64,37 @@ class HypothesisHtml:
         return self.hyp
 
 
+class FunctionDeclarationHtml:
+    def __init__(self, identifiers, start_domain, end_domain):
+        self.identifiers = identifiers
+        self.start_domain = start_domain
+        self.end_domain = end_domain
+
+    def to_html(self):
+        res = ""
+        for s in self.identifiers[:-1]:
+            res += s
+            res += ", "
+        res += self.identifiers[-1]
+        res += " : " + self.start_domain + " → " + self.end_domain
+        return res
+
+
+class DeclarationHtml:
+    def __init__(self, identifiers, domain):
+        self.identifiers = identifiers
+        self.domain = domain
+
+    def to_html(self):
+        res = ""
+        for s in self.identifiers[:-1]:
+            res += s
+            res += ", "
+        res += self.identifiers[-1]
+        res += " ∈ " + self.domain
+        return res
+
+
 class StatementHtml:
     def __init__(self, stmt):
         self.stmt = stmt

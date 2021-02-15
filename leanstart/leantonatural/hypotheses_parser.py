@@ -1,0 +1,59 @@
+from lark import Lark, Transformer
+
+import leanhtml as lhtml
+
+grammar = r"""
+    start: _SEP* (function_declaration | declaration | named_hypothesis) _SEP*
+    function_declaration: IDENTIFIER (_SEP* IDENTIFIER)* _SEP* ":" _SEP* DOMAIN _SEP* "→" _SEP* DOMAIN
+    declaration: IDENTIFIER (_SEP+ IDENTIFIER)* _SEP* ":" _SEP* DOMAIN
+    named_hypothesis: IDENTIFIER _SEP* ":" _named_hypothesis
+    _named_hypothesis: expr
+    expr: /.+/
+    IDENTIFIER: /[^\s\(\)]+/
+    DOMAIN: /[^\s\(\)]+/
+    _SEP: /\s/
+"""
+
+parser = Lark(grammar)
+
+
+class HypothesisTransformer(Transformer):
+    def start(self, node):
+        return node[0]
+
+    def function_declaration(self, node):
+        start_domain = node[-2]
+        end_domain = node[-1]
+        identifiers = node[:-2]
+        return lhtml.FunctionDeclarationHtml(identifiers, start_domain, end_domain)
+
+    def declaration(self, node):
+        dom = node[-1]
+        identifiers = node[:-1]
+        return lhtml.DeclarationHtml(identifiers, dom)
+
+    def named_hypothesis(self, node):
+        identifier = node[0]  # the identifier is not really useful in the output
+        _named_hyp = node[1]
+        return lhtml.HypothesisHtml(_named_hyp)
+
+    def expr(self, node):
+        return node[0]
+
+    def IDENTIFIER(self, terminal):
+        return terminal
+
+    def DOMAIN(self, terminal):
+        return terminal
+
+
+def transform(s):
+    tree = parser.parse(s)
+    return HypothesisTransformer().transform(tree)
+
+
+def transform_list(hypotheses):
+    res = []
+    for s in hypotheses:
+        res.append(transform(s))
+    return res
