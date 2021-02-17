@@ -159,6 +159,22 @@ class ContinuousOnHtml:
         return self.fct.to_html() + " is continuous on " + self.on.to_html()
 
 
+class DifferentiableOnHtml:
+    def __init__(self, im_diff, fct, on):
+        self.im_diff = im_diff
+        self.fct = fct
+        self.on = on
+
+    def to_html(self):
+        return (
+            self.fct.to_html()
+            + " is differentiable on "
+            + self.on.to_html()
+            + " to "
+            + self.im_diff.to_html()
+        )
+
+
 class StatementHtml:
     def __init__(self, stmt):
         self.stmt = stmt

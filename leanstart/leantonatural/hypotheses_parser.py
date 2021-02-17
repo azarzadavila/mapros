@@ -7,8 +7,9 @@ grammar = r"""
     function_declaration: IDENTIFIER (_SEP* IDENTIFIER)* _SEP* ":" _SEP* DOMAIN _SEP* "→" _SEP* DOMAIN
     declaration: IDENTIFIER (_SEP+ IDENTIFIER)* _SEP* ":" _SEP* DOMAIN
     named_hypothesis: IDENTIFIER _SEP* ":" _SEP* _named_hypothesis
-    _named_hypothesis: continuous_on | expr
-    continuous_on: "continuous_on" _SEP+ (par_expr | LETTER_LIKE) _SEP+ (par_expr | LETTER_LIKE) 
+    _named_hypothesis: continuous_on | differentiable_on | expr
+    continuous_on: "continuous_on" _SEP+ (par_expr | LETTER_LIKE) _SEP+ (par_expr | LETTER_LIKE)
+    differentiable_on: "differentiable_on" _SEP+ (par_expr | LETTER_LIKE) _SEP+ (par_expr | LETTER_LIKE) _SEP+ (par_expr | LETTER_LIKE) 
     expr: basic_expr (_SEP+ basic_expr)*
     basic_expr: par_expr | interval | deriv | LETTER_LIKE
     par_expr: "(" _SEP* expr _SEP* ")"
@@ -68,6 +69,12 @@ class HypothesisTransformer(Transformer):
         fct = lhtml.BasicHtml(node[0])
         on = lhtml.BasicHtml(node[1])
         return lhtml.ContinuousOnHtml(fct, on)
+
+    def differentiable_on(self, node):
+        im_diff = lhtml.BasicHtml(node[0])
+        fct = lhtml.BasicHtml(node[1])
+        on = lhtml.BasicHtml(node[2])
+        return lhtml.DifferentiableOnHtml(im_diff, fct, on)
 
     def LETTER_LIKE(self, terminal):
         return terminal

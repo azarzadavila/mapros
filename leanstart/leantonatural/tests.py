@@ -85,8 +85,25 @@ def html_test_continuous_on():
     lean_to_html(input_string=s, output_file="html_test_continuous_on.html")
 
 
+def html_test_differentiable_on():
+    s = r"""
+    import data.nat.prime
+    open nat
+    theorem infinitude_of_prime (a b : R) (f : R → R) (h1 : differentiable_on R f (set.Icc a b)) : exists a, prime p :=
+    begin
+        p1
+        begin
+            p2
+        end
+        p3 p4
+    end
+    """
+    lean_to_html(input_string=s, output_file="html_test_differentiable_on.html")
+
+
 parser_test()
 html_test()
 html_test_interval()
 html_test_deriv()
 html_test_continuous_on()
+html_test_differentiable_on()
