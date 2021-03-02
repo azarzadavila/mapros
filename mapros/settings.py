@@ -47,6 +47,7 @@ INSTALLED_APPS = [
     "authentification.apps.AuthentificationConfig",
     "corsheaders",
     "formal",
+    "leanserver",
 ]
 
 MIDDLEWARE = [
