@@ -33,7 +33,7 @@ class RealValuedSequences(Sentence):
         if not match:
             return None
         identifiers = []
-        prev = match[0][1:match.start(match.lastindex)]
+        prev = match[0][1 : match.start(match.lastindex)]
         prev = prev.split(", ")
         for ident in prev:
             if ident:
@@ -47,9 +47,34 @@ class RealValuedSequences(Sentence):
         if not match:
             return None
         identifiers = []
-        prev = match[0][:match.end(match.lastindex)]
+        prev = match[0][: match.end(match.lastindex)]
         prev = prev.split(" ")
         for ident in prev:
             if ident:
                 identifiers.append(ident)
         return cls(identifiers)
+
+
+class RealDeclaration(Sentence):
+    def __init__(self, ident):
+        self.ident = ident
+
+    def to_lean(self) -> str:
+        return self.ident + " : ℝ"
+
+    def to_natural(self) -> str:
+        return "$" + self.ident + r" \in \mathbb{R}$"
+
+    @classmethod
+    def from_natural(cls, s: str):
+        match = re.search(r"\$(\w+) \\in \\mathbb\{R\}\$", s)
+        if not match:
+            return None
+        return cls(match[1])
+
+    @classmethod
+    def from_lean(cls, s: str):
+        match = re.search(r"(\w+) : ℝ", s)
+        if not match:
+            return None
+        return cls(match[1])

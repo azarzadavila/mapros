@@ -1,15 +1,29 @@
+from typing import Type
+
 from django.test import TestCase
 
-from main.sentences import RealValuedSequences
+from main.language import Language
+from main.sentences import RealValuedSequences, RealDeclaration
+
+
+def test_bijective(self, cls: Type[Language], natural, lean):
+    obj = cls.from_natural(natural)
+    self.assertEqual(obj.to_natural(), natural)
+    self.assertEqual(obj.to_lean(), lean)
+    obj = cls.from_lean(lean)
+    self.assertEqual(obj.to_natural(), natural)
+    self.assertEqual(obj.to_lean(), lean)
 
 
 class RealValuedSequencesTest(TestCase):
     def test_basic(self):
         natural = "$a_n, b_n, c_n$ are real-valued sequences"
-        seq = RealValuedSequences.from_natural(natural)
-        self.assertEqual(seq.to_natural(), natural)
         lean = "a b c : ℕ → ℝ"
-        self.assertEqual(seq.to_lean(), lean)
-        seq = RealValuedSequences.from_lean(lean)
-        self.assertEqual(seq.to_lean(), lean)
-        self.assertEqual(seq.to_natural(), natural)
+        test_bijective(self, RealValuedSequences, natural, lean)
+
+
+class RealDeclarationTest(TestCase):
+    def test_basic(self):
+        natural = r"$l \in \mathbb{R}$"
+        lean = "l : ℝ"
+        test_bijective(self, RealDeclaration, natural, lean)
