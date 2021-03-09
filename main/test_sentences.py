@@ -3,7 +3,12 @@ from typing import Type
 from django.test import TestCase
 
 from main.language import Language
-from main.sentences import RealValuedSequences, RealDeclaration, SequenceLimit
+from main.sentences import (
+    RealValuedSequences,
+    RealDeclaration,
+    SequenceLimit,
+    Inequality,
+)
 
 
 def test_bijective(self, cls: Type[Language], natural, lean):
@@ -34,3 +39,19 @@ class SequenceLimitTest(TestCase):
         natural = r"$a_n \rightarrow l$"
         lean = "is_limit a l"
         test_bijective(self, SequenceLimit, natural, lean)
+
+
+class InequalityTest(TestCase):
+    def test_basic(self):
+        nat_gt = "$a > b$"
+        lean_gt = "a > b"
+        test_bijective(self, Inequality, nat_gt, lean_gt)
+        nat_ge = r"$a \geq b$"
+        lean_ge = "a ≥ b"
+        test_bijective(self, Inequality, nat_ge, lean_ge)
+        nat_lt = "$a < b$"
+        lean_lt = "a < b"
+        test_bijective(self, Inequality, nat_lt, lean_lt)
+        nat_le = r"$a \leq b$"
+        lean_le = "a ≤ b"
+        test_bijective(self, Inequality, nat_le, lean_le)
