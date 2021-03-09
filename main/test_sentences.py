@@ -2,7 +2,6 @@ from typing import Type
 
 from django.test import TestCase
 
-from main.context import Context
 from main.language import Language
 from main.sentences import (
     RealValuedSequences,
@@ -63,5 +62,4 @@ class ForAllTest(TestCase):
     def test_inequality(self):
         natural = r"$\forall x : $$x < a$"
         lean = "∀ x : x < a"
-        context = Context()
-        test_bijective(self, ForAll, natural, lean, context)
+        test_bijective(self, ForAll, natural, lean)

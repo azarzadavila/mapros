@@ -42,6 +42,20 @@ MAP_NAT_INEQ = {
 }
 
 
+def from_natural(s: str, cls, context=None):
+    if cls == ForAll:
+        match = Inequality.from_natural(s)
+        return match
+    raise NotImplementedError
+
+
+def from_lean(s: str, cls, context=None):
+    if cls == ForAll:
+        match = Inequality.from_lean(s)
+        return match
+    raise NotImplementedError
+
+
 class Sentence(Language, ABC):
     pass
 
@@ -198,7 +212,7 @@ class ForAll(Sentence):
         match = re.match(r"\$\\forall (\w+) : \$(.+)", s)
         if not match:
             return None
-        sentence = context.from_natural(match[2], cls)
+        sentence = from_natural(match[2], cls)
         if not sentence:
             return None
         return cls(match[1], sentence)
@@ -208,7 +222,7 @@ class ForAll(Sentence):
         match = re.match(r"∀ (\w+) : (.+)", s)
         if not match:
             return None
-        sentence = context.from_lean(match[2], cls)
+        sentence = from_lean(match[2], cls)
         if not sentence:
             return None
         return cls(match[1], sentence)
