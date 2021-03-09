@@ -1,7 +1,6 @@
 from abc import ABC
 import re
 
-from main.context import Context
 from main.language import Language
 
 from enum import Enum, auto
@@ -68,7 +67,7 @@ class RealValuedSequences(Sentence):
         return s
 
     @classmethod
-    def from_natural(cls, s: str, context: Context = None):
+    def from_natural(cls, s: str, context=None):
         match = re.search(r"\$(\w+_n, )*(\w+_n)\$ are real-valued sequences", s)
         if not match:
             return None
@@ -82,7 +81,7 @@ class RealValuedSequences(Sentence):
         return cls(identifiers)
 
     @classmethod
-    def from_lean(cls, s: str, context: Context = None):
+    def from_lean(cls, s: str, context=None):
         match = re.search(r"(\w+ )+: ℕ → ℝ", s)
         if not match:
             return None
@@ -106,14 +105,14 @@ class RealDeclaration(Sentence):
         return "$" + self.ident + r" \in \mathbb{R}$"
 
     @classmethod
-    def from_natural(cls, s: str, context: Context = None):
+    def from_natural(cls, s: str, context=None):
         match = re.search(r"\$(\w+) \\in \\mathbb\{R\}\$", s)
         if not match:
             return None
         return cls(match[1])
 
     @classmethod
-    def from_lean(cls, s: str, context: Context = None):
+    def from_lean(cls, s: str, context=None):
         match = re.search(r"(\w+) : ℝ", s)
         if not match:
             return None
@@ -132,14 +131,14 @@ class SequenceLimit(Sentence):
         return "$" + self.seq + "_n " + r"\rightarrow " + self.lim + "$"
 
     @classmethod
-    def from_natural(cls, s: str, context: Context = None):
+    def from_natural(cls, s: str, context=None):
         match = re.search(r"\$(\w+)_n \\rightarrow (\w+)\$", s)
         if not match:
             return None
         return cls(match[1], match[2])
 
     @classmethod
-    def from_lean(cls, s: str, context: Context = None):
+    def from_lean(cls, s: str, context=None):
         match = re.search(r"is_limit (\w+) (\w+)", s)
         if not match:
             return None
@@ -167,7 +166,7 @@ class Inequality(Sentence):
         )
 
     @classmethod
-    def from_natural(cls, s: str, context: Context = None):
+    def from_natural(cls, s: str, context=None):
         ineq_symbols = r">|\\geq|<|\\leq"
         match = re.search(r"\$(\w+) (" + ineq_symbols + r") (\w+)\$", s)
         if not match:
@@ -175,7 +174,7 @@ class Inequality(Sentence):
         return cls(match[1], MAP_NAT_INEQ[match[2]], match[3])
 
     @classmethod
-    def from_lean(cls, s: str, context: Context = None):
+    def from_lean(cls, s: str, context=None):
         ineq_symbols = "|".join(MAP_LEAN_INEQ.keys())
         match = re.search(r"(\w+) (" + ineq_symbols + r") (\w+)", s)
         if not match:
@@ -195,7 +194,7 @@ class ForAll(Sentence):
         return r"$\forall " + self.ident + " : $" + self.sentence.to_natural()
 
     @classmethod
-    def from_natural(cls, s: str, context: Context):
+    def from_natural(cls, s: str, context=None):
         match = re.match(r"\$\\forall (\w+) : \$(.+)", s)
         if not match:
             return None
@@ -205,7 +204,7 @@ class ForAll(Sentence):
         return cls(match[1], sentence)
 
     @classmethod
-    def from_lean(cls, s: str, context: Context):
+    def from_lean(cls, s: str, context=None):
         match = re.match(r"∀ (\w+) : (.+)", s)
         if not match:
             return None

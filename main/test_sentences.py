@@ -2,20 +2,22 @@ from typing import Type
 
 from django.test import TestCase
 
+from main.context import Context
 from main.language import Language
 from main.sentences import (
     RealValuedSequences,
     RealDeclaration,
     SequenceLimit,
     Inequality,
+    ForAll,
 )
 
 
-def test_bijective(self, cls: Type[Language], natural, lean):
-    obj = cls.from_natural(natural)
+def test_bijective(self, cls: Type[Language], natural, lean, context=None):
+    obj = cls.from_natural(natural, context)
     self.assertEqual(obj.to_natural(), natural)
     self.assertEqual(obj.to_lean(), lean)
-    obj = cls.from_lean(lean)
+    obj = cls.from_lean(lean, context)
     self.assertEqual(obj.to_natural(), natural)
     self.assertEqual(obj.to_lean(), lean)
 
@@ -55,3 +57,11 @@ class InequalityTest(TestCase):
         nat_le = r"$a \leq b$"
         lean_le = "a ≤ b"
         test_bijective(self, Inequality, nat_le, lean_le)
+
+
+class ForAllTest(TestCase):
+    def test_inequality(self):
+        natural = r"$\forall x : $$x < a$"
+        lean = "∀ x : x < a"
+        context = Context()
+        test_bijective(self, ForAll, natural, lean, context)

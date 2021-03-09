@@ -1,6 +1,3 @@
-from main.context import Context
-
-
 class Language:
     def to_lean(self) -> str:
         raise NotImplementedError
@@ -9,9 +6,9 @@ class Language:
         raise NotImplementedError
 
     @classmethod
-    def from_natural(cls, s: str, context: Context = None):
+    def from_natural(cls, s: str, context=None):
         raise NotImplementedError
 
     @classmethod
-    def from_lean(cls, s: str, context: Context = None):
+    def from_lean(cls, s: str, context=None):
         raise NotImplementedError
