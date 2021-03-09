@@ -78,3 +78,29 @@ class RealDeclaration(Sentence):
         if not match:
             return None
         return cls(match[1])
+
+
+class SequenceLimit(Sentence):
+    def __init__(self, seq, lim):
+        self.seq = seq
+        self.lim = lim
+
+    def to_lean(self) -> str:
+        return "is_limit " + self.seq + " " + self.lim
+
+    def to_natural(self) -> str:
+        return "$" + self.seq + "_n " + r"\rightarrow " + self.lim + "$"
+
+    @classmethod
+    def from_natural(cls, s: str):
+        match = re.search(r"\$(\w+)_n \\rightarrow (\w+)\$", s)
+        if not match:
+            return None
+        return cls(match[1], match[2])
+
+    @classmethod
+    def from_lean(cls, s: str):
+        match = re.search(r"is_limit (\w+) (\w+)", s)
+        if not match:
+            return None
+        return cls(match[1], match[2])

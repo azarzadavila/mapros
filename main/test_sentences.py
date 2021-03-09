@@ -3,7 +3,7 @@ from typing import Type
 from django.test import TestCase
 
 from main.language import Language
-from main.sentences import RealValuedSequences, RealDeclaration
+from main.sentences import RealValuedSequences, RealDeclaration, SequenceLimit
 
 
 def test_bijective(self, cls: Type[Language], natural, lean):
@@ -27,3 +27,10 @@ class RealDeclarationTest(TestCase):
         natural = r"$l \in \mathbb{R}$"
         lean = "l : ℝ"
         test_bijective(self, RealDeclaration, natural, lean)
+
+
+class SequenceLimitTest(TestCase):
+    def test_basic(self):
+        natural = r"$a_n \rightarrow l$"
+        lean = "is_limit a l"
+        test_bijective(self, SequenceLimit, natural, lean)
