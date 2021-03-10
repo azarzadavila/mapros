@@ -167,3 +167,28 @@ class LetMax(Tactic):
         if not match:
             return None
         return cls(match[1], match[2], match[3])
+
+
+class Use(Tactic):
+    def __init__(self, ident):
+        self.ident = ident
+
+    def to_lean(self) -> str:
+        return "use " + self.ident
+
+    def to_natural(self, in_math=False) -> str:
+        return "We claim $" + self.ident + "$ works"
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"We claim \$(\w+)\$ works", s)
+        if not match:
+            return None
+        return cls(match[1])
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"use (\w+)", s)
+        if not match:
+            return None
+        return cls(match[1])
