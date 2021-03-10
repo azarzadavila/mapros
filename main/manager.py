@@ -7,6 +7,7 @@ class Manager:
         self.context = Context()
         self.hypotheses = []
         self.initial_goal = None
+        self.theorem_name = "anonymous"
 
     def add_hypothesis(self, nat):
         match = RealValuedSequences.from_natural(nat, self.context)
@@ -36,3 +37,22 @@ class Manager:
                 res.append("H{}".format(count))
                 count += 1
         return res
+
+    def to_lean(self):
+        s = "theorem " + self.theorem_name
+        s += "\n"
+        ident_hyp = self.ident_hypotheses()
+        for i in range(len(ident_hyp)):
+            s += "("
+            if ident_hyp[i]:
+                s += ident_hyp[i] + " : "
+            s += self.hypotheses[i].to_lean()
+            s += ")"
+            s += "\n"
+        s += ":\n"
+        s += self.initial_goal.to_lean() + "\n"
+        s += ":=\n"
+        s += "begin\n"
+        s += "sorry,\n"
+        s += "end"
+        return s
