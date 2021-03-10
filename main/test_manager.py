@@ -12,4 +12,6 @@ class ManagerTest(TestCase):
         manager.add_hypothesis(r"$c_n \rightarrow l$")
         manager.add_hypothesis(r"$\forall n : a_n \leq b_n$")
         manager.add_hypothesis(r"$\forall n : b_n \leq c_n$")
-        self.assertEqual(len(manager.hypotheses), 4)
+        manager.set_initial_goal(r"$b_n \rightarrow l$")
+        expected = [None, None, "H1", "H2", "H3", "H4"]
+        self.assertEqual(manager.ident_hypotheses(), expected)
