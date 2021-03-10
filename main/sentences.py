@@ -336,7 +336,7 @@ class ForAll(Sentence):
         self.sentence = sentence
 
     def to_lean(self) -> str:
-        return "∀ " + self.ident + " : " + self.sentence.to_lean()
+        return "∀ " + self.ident + ", " + self.sentence.to_lean()
 
     def to_natural(self, in_math=False) -> str:
         s = ""
@@ -362,7 +362,7 @@ class ForAll(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.match(r"∀ (\w+) : (.+)", s)
+        match = re.match(r"∀ (\w+), (.+)", s)
         if not match:
             return None
         sentence = from_lean(match[2], cls, context)
