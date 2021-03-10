@@ -42,14 +42,14 @@ MAP_NAT_INEQ = {
 }
 
 
-def from_natural(s: str, cls, context=None):
+def from_natural(s: str, cls, context=None, in_math=False):
     if cls == ForAll:
-        match = Inequality.from_natural(s, context)
+        match = Inequality.from_natural(s, context, in_math)
         return match
     if cls == Inequality:
-        match = ApplySequence.from_natural(s, context)
+        match = ApplySequence.from_natural(s, context, in_math)
         if not match:
-            match = Identifier.from_natural(s, context)
+            match = Identifier.from_natural(s, context, in_math)
         return match
     raise NotImplementedError
 
@@ -77,11 +77,11 @@ class Identifier(Language):
     def to_lean(self) -> str:
         return self.ident
 
-    def to_natural(self) -> str:
+    def to_natural(self, in_math=False) -> str:
         return self.ident
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
+    def from_natural(cls, s: str, context=None, in_math=False):
         match = re.search(r"(\w+)", s)
         if not match:
             return None
@@ -106,18 +106,25 @@ class RealValuedSequences(Sentence):
         s += ": ℕ → ℝ"
         return s
 
-    def to_natural(self) -> str:
-        s = "$"
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
         for ident in self.identifiers[:-1]:
             s += ident + "_n, "
         s += self.identifiers[-1] + "_n"
         s += "$ "
         s += "are real-valued sequences"
+        if in_math:
+            s += " $"
         return s
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
-        match = re.search(r"\$(\w+_n, )*(\w+_n)\$ are real-valued sequences", s)
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.search(r"\$(\w+_n, )*(\w+_n)\$ are real-valued sequences", s)
+        else:
+            match = re.search(r"(\w+_n, )*(\w+_n)\$ are real-valued sequences \$", s)
         if not match:
             return None
         identifiers = []
@@ -150,12 +157,21 @@ class RealDeclaration(Sentence):
     def to_lean(self) -> str:
         return self.ident + " : ℝ"
 
-    def to_natural(self) -> str:
-        return "$" + self.ident + r" \in \mathbb{R}$"
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += self.ident + r" \in \mathbb{R}"
+        if not in_math:
+            s += "$"
+        return s
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
-        match = re.search(r"\$(\w+) \\in \\mathbb\{R\}\$", s)
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.search(r"\$(\w+) \\in \\mathbb\{R\}\$", s)
+        else:
+            match = re.search(r"(\w+) \\in \\mathbb\{R\}", s)
         if not match:
             return None
         return cls(match[1])
@@ -176,12 +192,21 @@ class SequenceLimit(Sentence):
     def to_lean(self) -> str:
         return "is_limit " + self.seq + " " + self.lim
 
-    def to_natural(self) -> str:
-        return "$" + self.seq + "_n " + r"\rightarrow " + self.lim + "$"
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += self.seq + "_n " + r"\rightarrow " + self.lim
+        if not in_math:
+            s += "$"
+        return s
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
-        match = re.search(r"\$(\w+)_n \\rightarrow (\w+)\$", s)
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.search(r"\$(\w+)_n \\rightarrow (\w+)\$", s)
+        else:
+            match = re.search(r"(\w+)_n \\rightarrow (\w+)", s)
         if not match:
             return None
         return cls(match[1], match[2])
@@ -209,27 +234,34 @@ class Inequality(Sentence):
             + self.ident2.to_lean()
         )
 
-    def to_natural(self) -> str:
-        return (
-            "$"
-            + self.ident1.to_natural()
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += (
+            self.ident1.to_natural(True)
             + " "
             + MAP_INEQ_NAT[self.ineq_type]
             + " "
-            + self.ident2.to_natural()
-            + "$"
+            + self.ident2.to_natural(True)
         )
+        if not in_math:
+            s += "$"
+        return s
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
+    def from_natural(cls, s: str, context=None, in_math=False):
         ineq_symbols = r">|\\geq|<|\\leq"
-        match = re.search(r"\$(.+) (" + ineq_symbols + r") (.+)\$", s)
+        if not in_math:
+            match = re.search(r"\$(.+) (" + ineq_symbols + r") (.+)\$", s)
+        else:
+            match = re.search(r"(.+) (" + ineq_symbols + r") (.+)", s)
         if not match:
             return None
-        ident1 = from_natural(match[1], Inequality, context)
+        ident1 = from_natural(match[1], Inequality, context, True)
         if not ident1:
             return None
-        ident2 = from_natural(match[3], Inequality, context)
+        ident2 = from_natural(match[3], Inequality, context, True)
         if not ident2:
             return None
         return cls(ident1, MAP_NAT_INEQ[match[2]], ident2)
@@ -258,12 +290,21 @@ class ApplySequence(Sentence):
         s = self.ident + " " + self.point
         return s
 
-    def to_natural(self) -> str:
-        return self.ident + "_" + self.point
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += self.ident + "_" + self.point
+        if not in_math:
+            s += "$"
+        return s
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
-        match = re.search(r"(\w+)_(\w+)", s)
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.search(r"\$(\w+)_(\w+)\$", s)
+        else:
+            match = re.search(r"(\w+)_(\w+)", s)
         if not match:
             return None
         ident = match[1]
@@ -292,15 +333,24 @@ class ForAll(Sentence):
     def to_lean(self) -> str:
         return "∀ " + self.ident + " : " + self.sentence.to_lean()
 
-    def to_natural(self) -> str:
-        return r"$\forall " + self.ident + " : $" + self.sentence.to_natural()
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += r"\forall " + self.ident + " : " + self.sentence.to_natural(True)
+        if not in_math:
+            s += "$"
+        return s
 
     @classmethod
-    def from_natural(cls, s: str, context=None):
-        match = re.match(r"\$\\forall (\w+) : \$(.+)", s)
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.match(r"\$\\forall (\w+) : (.+)\$", s)
+        else:
+            match = re.match(r"\\forall (\w+) : (.+)", s)
         if not match:
             return None
-        sentence = from_natural(match[2], cls, context)
+        sentence = from_natural(match[2], cls, context, True)
         if not sentence:
             return None
         return cls(match[1], sentence)

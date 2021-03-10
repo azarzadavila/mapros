@@ -69,6 +69,6 @@ class InequalityTest(TestCase):
 
 class ForAllTest(TestCase):
     def test_inequality(self):
-        natural = r"$\forall x : $$x < a$"
+        natural = r"$\forall x : x < a$"
         lean = "∀ x : x < a"
         test_bijective(self, ForAll, natural, lean)
