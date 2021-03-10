@@ -10,7 +10,7 @@ from main.sentences import (
     RealValuedSequences,
     RealDeclaration,
 )
-from main.tactic import LetGoalLimit, ChooseNEpsilonLimit
+from main.tactic import LetGoalLimit, ChooseNEpsilonLimit, LetMax
 from main.test_utils import test_bijective
 
 
@@ -46,3 +46,10 @@ class ChooseNEpsilonLimitTest(TestCase):
         natural = r"Let's choose $N_a$ such that H1 uses $\epsilon$"
         lean = r"cases H1 ε A1 with N_a A2"
         test_bijective(self, ChooseNEpsilonLimit, natural, lean, context)
+
+
+class LetMaxTest(TestCase):
+    def test_basic(self):
+        natural = "Let $N = max(N_a, N_c)$"
+        lean = "let N := max N_a N_c"
+        test_bijective(self, LetMax, natural, lean)

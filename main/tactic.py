@@ -136,3 +136,32 @@ class ChooseNEpsilonLimit(Tactic):
         n_chosen = match[4]
         hyp_n = match[5]
         return cls(limit_def, eps, hyp_eps, n_chosen, hyp_n)
+
+
+class LetMax(Tactic):
+    def __init__(self, ident, ident1, ident2):
+        self.ident = ident
+        self.ident1 = ident1
+        self.ident2 = ident2
+
+    def to_lean(self) -> str:
+        return "let " + self.ident + " := max " + self.ident1 + " " + self.ident2
+
+    def to_natural(self, in_math=False) -> str:
+        return (
+            "Let $" + self.ident + " = max(" + self.ident1 + ", " + self.ident2 + ")$"
+        )
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.match(r"Let \$(\w+) = max\((\w+), (\w+)\)\$", s)
+        if not match:
+            return None
+        return cls(match[1], match[2], match[3])
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.match(r"let (\w+) := max (\w+) (\w+)", s)
+        if not match:
+            return None
+        return cls(match[1], match[2], match[3])
