@@ -395,3 +395,52 @@ class ForAll(Sentence):
         if not sentence:
             return None
         return cls(match[1], sentence)
+
+
+class ForAllNatIneqThen(Sentence):
+    def __init__(self, ident, ineq, sentence):
+        self.ident = ident
+        self.ineq = ineq
+        self.sentence = sentence  # TODO
+
+    def to_lean(self) -> str:
+        return (
+            "∀ (" + self.ident + " : ℕ), " + self.ineq.to_lean() + " → " + self.sentence
+        )
+
+    def to_natural(self, in_math=False) -> str:
+        return (
+            r"$\forall "
+            + self.ident
+            + r" \in \mathbb{N} : "
+            + self.ineq.to_natural(True)
+            + " \Rightarrow "
+            + self.sentence
+            + "$"
+        )
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(
+            r"\$\\forall (\w+) \\in \\mathbb\{N\} : (.+) \\Rightarrow (.+)\$", s
+        )
+        if not match:
+            return None
+        ident = match[1]
+        ineq = Inequality.from_natural(match[2], context, True)
+        if not ineq:
+            return None
+        sentence = match[3]
+        return cls(ident, ineq, sentence)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"∀ \((\w+) : ℕ\), (.+) → (.+)", s)
+        if not match:
+            return None
+        ident = match[1]
+        ineq = Inequality.from_lean(match[2], context)
+        if not ineq:
+            return None
+        sentence = match[3]
+        return cls(ident, ineq, sentence)

@@ -9,6 +9,7 @@ from main.sentences import (
     Identifier,
     RealValuedSequences,
     RealDeclaration,
+    ForAllNatIneqThen,
 )
 from main.tactic import (
     LetGoalLimit,
@@ -16,6 +17,7 @@ from main.tactic import (
     LetMax,
     Use,
     ByInequalityProperties,
+    LetNInequality,
 )
 from main.test_utils import test_bijective
 
@@ -73,3 +75,20 @@ class ByInequalityPropertiesTest(TestCase):
         natural = r"By inequality properties, $N_a \leq N$"
         lean = r"have A1 : N_a ≤ N := by obvious_ineq"
         test_bijective(self, ByInequalityProperties, natural, lean)
+
+
+class LetNInequalityTest(TestCase):
+    def test_basic(self):
+        natural = "Let $n$"
+        lean = "intros n A1"
+        context = Context()
+        context.current_goal = ForAllNatIneqThen(
+            "n", Inequality.from_natural(r"$n \leq N$"), r"|b_n - l| < \epsilon$"
+        )
+        test_bijective(self, LetNInequality, natural, lean, context)
+
+    def test_fail(self):
+        natural = "Let $n$"
+        lean = "intros n A1"
+        self.assertIsNone(LetNInequality.from_natural(natural, Context()))
+        self.assertIsNone(LetNInequality.from_lean(lean, Context()))

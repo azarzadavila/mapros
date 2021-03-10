@@ -2,7 +2,13 @@ from abc import ABC
 import re
 
 from main.language import Language
-from main.sentences import SequenceLimit, IdentifierEpsilon, Identifier, Inequality
+from main.sentences import (
+    SequenceLimit,
+    IdentifierEpsilon,
+    Identifier,
+    Inequality,
+    ForAllNatIneqThen,
+)
 
 
 def from_natural(s: str, cls, context=None, in_math=False):
@@ -237,3 +243,37 @@ class ByInequalityProperties(Tactic):
         if not sentence:
             return None
         return cls(match[1], sentence)
+
+
+class LetNInequality(Tactic):
+    def __init__(self, ident, hyp):
+        self.ident = ident
+        self.hyp = hyp
+
+    def to_lean(self) -> str:
+        return "intros " + self.ident + " " + self.hyp
+
+    def to_natural(self, in_math=False) -> str:
+        return "Let $" + self.ident + "$"
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"Let \$(\w+)\$", s)
+        if not match:
+            return None
+        if not isinstance(context.current_goal, ForAllNatIneqThen):
+            return None
+        ident = match[1]
+        hyp = context.next_anonymous()
+        return cls(ident, hyp)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"intros (\w+) (\w+)", s)
+        if not match:
+            return None
+        if not isinstance(context.current_goal, ForAllNatIneqThen):
+            return None
+        ident = match[1]
+        hyp = match[2]
+        return cls(ident, hyp)
