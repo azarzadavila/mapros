@@ -70,6 +70,28 @@ class Sentence(Language, ABC):
     pass
 
 
+class IdentifierEpsilon(Language):
+    def to_lean(self) -> str:
+        return "ε"
+
+    def to_natural(self, in_math=False) -> str:
+        return r"\epsilon"
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"\\epsilon", s)
+        if not match:
+            return None
+        return cls()
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"ε", s)
+        if not match:
+            return None
+        return cls()
+
+
 class Identifier(Language):
     def __init__(self, ident):
         self.ident = ident

@@ -1,9 +1,6 @@
-from typing import Type
-
 from django.test import TestCase
 
 from main.context import Context
-from main.language import Language
 from main.sentences import (
     RealValuedSequences,
     RealDeclaration,
@@ -11,17 +8,7 @@ from main.sentences import (
     Inequality,
     ForAll,
 )
-
-
-def test_bijective(self, cls: Type[Language], natural, lean, context=None):
-    if context is None:
-        context = Context()
-    obj = cls.from_natural(natural, context)
-    self.assertEqual(obj.to_natural(), natural)
-    self.assertEqual(obj.to_lean(), lean)
-    obj = cls.from_lean(lean, context)
-    self.assertEqual(obj.to_natural(), natural)
-    self.assertEqual(obj.to_lean(), lean)
+from main.test_utils import test_bijective
 
 
 class RealValuedSequencesTest(TestCase):

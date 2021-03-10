@@ -26,6 +26,7 @@ class Manager:
         if not match:
             raise ValueError("Unrecognized goal")
         self.initial_goal = match
+        self.context.current_goal = match
 
     def ident_hypotheses(self):
         res = []
