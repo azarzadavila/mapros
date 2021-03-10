@@ -37,7 +37,7 @@ class Tactic(Language, ABC):
     pass
 
 
-class LetGoalLimit(Language):
+class LetGoalLimit(Tactic):
     def __init__(self, ident, hyp):
         self.ident = ident
         self.hyp = hyp
@@ -77,7 +77,7 @@ class LetGoalLimit(Language):
         return cls(ident, hyp)
 
 
-class ChooseNEpsilonLimit(Language):
+class ChooseNEpsilonLimit(Tactic):
     def __init__(self, limit_def, eps, hyp_eps, n_chosen, hyp_n):
         self.limit_def = limit_def
         self.eps = eps
