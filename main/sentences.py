@@ -336,8 +336,10 @@ class ApplySequence(Sentence):
             return None
         ident = match[1]
         point = match[2]
-        if "sequence" in context.get(ident):
-            return cls(ident, point)
+        if context.get(ident):
+            if "class" in context.get(ident):
+                if "sequence" in context.get(ident)["class"]:
+                    return cls(ident, point)
         return None
 
     @classmethod
@@ -347,8 +349,10 @@ class ApplySequence(Sentence):
             return None
         ident = match[1]
         point = match[2]
-        if "sequence" in context.get(ident):
-            return cls(ident, point)
+        if context.get(ident):
+            if "class" in context.get(ident):
+                if "sequence" in context.get(ident)["class"]:
+                    return cls(ident, point)
         return None
 
 
