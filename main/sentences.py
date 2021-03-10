@@ -44,7 +44,12 @@ MAP_NAT_INEQ = {
 
 def from_natural(s: str, cls, context=None):
     if cls == ForAll:
-        match = Inequality.from_natural(s)
+        match = Inequality.from_natural(s, context)
+        return match
+    if cls == Inequality:
+        match = ApplySequence.from_natural(s, context)
+        if not match:
+            match = Identifier.from_natural(s, context)
         return match
     raise NotImplementedError
 
@@ -53,11 +58,41 @@ def from_lean(s: str, cls, context=None):
     if cls == ForAll:
         match = Inequality.from_lean(s)
         return match
+    if cls == Inequality:
+        match = ApplySequence.from_lean(s, context)
+        if not match:
+            match = Identifier.from_lean(s)
+        return match
     raise NotImplementedError
 
 
 class Sentence(Language, ABC):
     pass
+
+
+class Identifier(Language):
+    def __init__(self, ident):
+        self.ident = ident
+
+    def to_lean(self) -> str:
+        return self.ident
+
+    def to_natural(self) -> str:
+        return self.ident
+
+    @classmethod
+    def from_natural(cls, s: str, context=None):
+        match = re.search(r"(\w+)", s)
+        if not match:
+            return None
+        return cls(match[1])
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"(\w+)", s)
+        if not match:
+            return None
+        return cls(match[1])
 
 
 class RealValuedSequences(Sentence):
@@ -166,34 +201,87 @@ class Inequality(Sentence):
         self.ident2 = ident2
 
     def to_lean(self) -> str:
-        return self.ident1 + " " + MAP_INEQ_LEAN[self.ineq_type] + " " + self.ident2
+        return (
+            self.ident1.to_lean()
+            + " "
+            + MAP_INEQ_LEAN[self.ineq_type]
+            + " "
+            + self.ident2.to_lean()
+        )
 
     def to_natural(self) -> str:
         return (
             "$"
-            + self.ident1
+            + self.ident1.to_natural()
             + " "
             + MAP_INEQ_NAT[self.ineq_type]
             + " "
-            + self.ident2
+            + self.ident2.to_natural()
             + "$"
         )
 
     @classmethod
     def from_natural(cls, s: str, context=None):
         ineq_symbols = r">|\\geq|<|\\leq"
-        match = re.search(r"\$(\w+) (" + ineq_symbols + r") (\w+)\$", s)
+        match = re.search(r"\$(.+) (" + ineq_symbols + r") (.+)\$", s)
         if not match:
             return None
-        return cls(match[1], MAP_NAT_INEQ[match[2]], match[3])
+        ident1 = from_natural(match[1], Inequality, context)
+        if not ident1:
+            return None
+        ident2 = from_natural(match[3], Inequality, context)
+        if not ident2:
+            return None
+        return cls(ident1, MAP_NAT_INEQ[match[2]], ident2)
 
     @classmethod
     def from_lean(cls, s: str, context=None):
         ineq_symbols = "|".join(MAP_LEAN_INEQ.keys())
-        match = re.search(r"(\w+) (" + ineq_symbols + r") (\w+)", s)
+        match = re.search(r"(.+) (" + ineq_symbols + r") (.+)", s)
         if not match:
             return None
-        return cls(match[1], MAP_LEAN_INEQ[match[2]], match[3])
+        ident1 = from_lean(match[1], Inequality, context)
+        if not ident1:
+            return None
+        ident2 = from_lean(match[3], Inequality, context)
+        if not ident2:
+            return None
+        return cls(ident1, MAP_LEAN_INEQ[match[2]], ident2)
+
+
+class ApplySequence(Sentence):
+    def __init__(self, ident, point):
+        self.ident = ident
+        self.point = point
+
+    def to_lean(self) -> str:
+        s = self.ident + " " + self.point
+        return s
+
+    def to_natural(self) -> str:
+        return self.ident + "_" + self.point
+
+    @classmethod
+    def from_natural(cls, s: str, context=None):
+        match = re.search(r"(\w+)_(\w+)", s)
+        if not match:
+            return None
+        ident = match[1]
+        point = match[2]
+        if "sequence" in context.get(ident):
+            return cls(ident, point)
+        return None
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"(\w+) (\w+)", s)
+        if not match:
+            return None
+        ident = match[1]
+        point = match[2]
+        if "sequence" in context.get(ident):
+            return cls(ident, point)
+        return None
 
 
 class ForAll(Sentence):
@@ -212,7 +300,7 @@ class ForAll(Sentence):
         match = re.match(r"\$\\forall (\w+) : \$(.+)", s)
         if not match:
             return None
-        sentence = from_natural(match[2], cls)
+        sentence = from_natural(match[2], cls, context)
         if not sentence:
             return None
         return cls(match[1], sentence)
@@ -222,7 +310,7 @@ class ForAll(Sentence):
         match = re.match(r"∀ (\w+) : (.+)", s)
         if not match:
             return None
-        sentence = from_lean(match[2], cls)
+        sentence = from_lean(match[2], cls, context)
         if not sentence:
             return None
         return cls(match[1], sentence)

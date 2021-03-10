@@ -2,6 +2,7 @@ from typing import Type
 
 from django.test import TestCase
 
+from main.context import Context
 from main.language import Language
 from main.sentences import (
     RealValuedSequences,
@@ -56,6 +57,14 @@ class InequalityTest(TestCase):
         nat_le = r"$a \leq b$"
         lean_le = "a ≤ b"
         test_bijective(self, Inequality, nat_le, lean_le)
+
+    def test_sequence(self):
+        nat = r"$a_n \leq b_n$"
+        lean = "a n ≤ b n"
+        context = Context()
+        context.add("a", "sequence")
+        context.add("b", "sequence")
+        test_bijective(self, Inequality, nat, lean, context)
 
 
 class ForAllTest(TestCase):
