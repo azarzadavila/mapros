@@ -2,7 +2,7 @@ from abc import ABC
 import re
 
 from main.language import Language
-from main.sentences import SequenceLimit, IdentifierEpsilon, Identifier
+from main.sentences import SequenceLimit, IdentifierEpsilon, Identifier, Inequality
 
 
 def from_natural(s: str, cls, context=None, in_math=False):
@@ -15,6 +15,9 @@ def from_natural(s: str, cls, context=None, in_math=False):
         match = IdentifierEpsilon.from_natural(s, context, in_math)
         if not match:
             match = Identifier.from_natural(s, context, in_math)
+        return match
+    if cls == ByInequalityProperties:
+        match = Inequality.from_natural(s, context, in_math)
         return match
     raise NotImplementedError
 
@@ -29,6 +32,9 @@ def from_lean(s: str, cls, context=None):
         match = IdentifierEpsilon.from_lean(s, context)
         if not match:
             match = Identifier.from_lean(s, context)
+        return match
+    if cls == ByInequalityProperties:
+        match = Inequality.from_lean(s, context)
         return match
     raise NotImplementedError
 
@@ -192,3 +198,42 @@ class Use(Tactic):
         if not match:
             return None
         return cls(match[1])
+
+
+class ByInequalityProperties(Tactic):
+    def __init__(self, ident, sentence):
+        self.ident = ident
+        self.sentence = sentence
+
+    def to_lean(self) -> str:
+        return (
+            "have "
+            + self.ident
+            + " : "
+            + self.sentence.to_lean()
+            + " := by obvious_ineq"
+        )
+
+    def to_natural(self, in_math=False) -> str:
+        return "By inequality properties, " + self.sentence.to_natural()
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"By inequality properties, (.+)", s)
+        if not match:
+            return None
+        sentence = from_natural(match[1], cls, context, in_math)
+        if not sentence:
+            return None
+        ident = context.next_anonymous()
+        return cls(ident, sentence)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"have (\w+) : (.+) := by obvious_ineq", s)
+        if not match:
+            return None
+        sentence = from_lean(match[2], cls, context)
+        if not sentence:
+            return None
+        return cls(match[1], sentence)

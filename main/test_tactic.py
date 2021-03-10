@@ -10,7 +10,13 @@ from main.sentences import (
     RealValuedSequences,
     RealDeclaration,
 )
-from main.tactic import LetGoalLimit, ChooseNEpsilonLimit, LetMax, Use
+from main.tactic import (
+    LetGoalLimit,
+    ChooseNEpsilonLimit,
+    LetMax,
+    Use,
+    ByInequalityProperties,
+)
 from main.test_utils import test_bijective
 
 
@@ -60,3 +66,10 @@ class UseTest(TestCase):
         natural = "We claim $N$ works"
         lean = "use N"
         test_bijective(self, Use, natural, lean)
+
+
+class ByInequalityPropertiesTest(TestCase):
+    def test_basic(self):
+        natural = r"By inequality properties, $N_a \leq N$"
+        lean = r"have A1 : N_a ≤ N := by obvious_ineq"
+        test_bijective(self, ByInequalityProperties, natural, lean)
