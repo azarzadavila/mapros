@@ -14,6 +14,8 @@ from main.sentences import (
 
 
 def test_bijective(self, cls: Type[Language], natural, lean, context=None):
+    if context is None:
+        context = Context()
     obj = cls.from_natural(natural, context)
     self.assertEqual(obj.to_natural(), natural)
     self.assertEqual(obj.to_lean(), lean)

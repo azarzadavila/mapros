@@ -133,7 +133,9 @@ class RealValuedSequences(Sentence):
         for ident in prev:
             if ident:
                 identifiers.append(ident[:-2])
+                context.add(ident[:-2], "sequence")
         identifiers.append(match[match.lastindex][:-2])
+        context.add(match[match.lastindex][:-2], "sequence")
         return cls(identifiers)
 
     @classmethod
@@ -147,6 +149,7 @@ class RealValuedSequences(Sentence):
         for ident in prev:
             if ident:
                 identifiers.append(ident)
+                context.add(ident, "sequence")
         return cls(identifiers)
 
 
@@ -174,6 +177,7 @@ class RealDeclaration(Sentence):
             match = re.search(r"(\w+) \\in \\mathbb\{R\}", s)
         if not match:
             return None
+        context.add(match[1], "real")
         return cls(match[1])
 
     @classmethod
@@ -181,6 +185,7 @@ class RealDeclaration(Sentence):
         match = re.search(r"(\w+) : ℝ", s)
         if not match:
             return None
+        context.add(match[1], "real")
         return cls(match[1])
 
 
