@@ -376,9 +376,9 @@ class ForAll(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.match(r"\$\\forall (\w+) : (.+)\$", s)
+            match = re.search(r"\$\\forall (\w+) : (.+)\$", s)
         else:
-            match = re.match(r"\\forall (\w+) : (.+)", s)
+            match = re.search(r"\\forall (\w+) : (.+)", s)
         if not match:
             return None
         sentence = from_natural(match[2], cls, context, True)
@@ -388,7 +388,7 @@ class ForAll(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.match(r"∀ (\w+), (.+)", s)
+        match = re.search(r"∀ (\w+), (.+)", s)
         if not match:
             return None
         sentence = from_lean(match[2], cls, context)

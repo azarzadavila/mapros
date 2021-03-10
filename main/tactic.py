@@ -112,7 +112,9 @@ class ChooseNEpsilonLimit(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.match(r"Let's choose \$(\w+)\$ such that (\w+) uses \$(\\?\w+)\$", s)
+        match = re.search(
+            r"Let's choose \$(\w+)\$ such that (\w+) uses \$(\\?\w+)\$", s
+        )
         if not match:
             return None
         n_chosen = match[1]
@@ -127,7 +129,7 @@ class ChooseNEpsilonLimit(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.match(r"cases (\w+) (\w+) (\w+) with (\w+) (\w+)", s)
+        match = re.search(r"cases (\w+) (\w+) (\w+) with (\w+) (\w+)", s)
         if not match:
             return None
         limit_def = match[1]
@@ -154,14 +156,14 @@ class LetMax(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.match(r"Let \$(\w+) = max\((\w+), (\w+)\)\$", s)
+        match = re.search(r"Let \$(\w+) = max\((\w+), (\w+)\)\$", s)
         if not match:
             return None
         return cls(match[1], match[2], match[3])
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.match(r"let (\w+) := max (\w+) (\w+)", s)
+        match = re.search(r"let (\w+) := max (\w+) (\w+)", s)
         if not match:
             return None
         return cls(match[1], match[2], match[3])
