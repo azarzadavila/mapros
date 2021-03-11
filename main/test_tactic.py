@@ -24,6 +24,7 @@ from main.tactic import (
     Cases,
     SplitGoal,
     DoAllSubgoals,
+    LinearArithmetic,
 )
 from main.test_utils import test_bijective
 
@@ -143,3 +144,10 @@ class DoAllSubgoalsTest(TestCase):
         natural = "Let's split the goal and do on all subgoals"
         lean = "split;"
         test_bijective(self, DoAllSubgoals, natural, lean)
+
+
+class LinearArithmeticTest(TestCase):
+    def test_basic(self):
+        natural = "By linear arithmetic"
+        lean = "linarith"
+        test_bijective(self, LinearArithmetic, natural, lean)

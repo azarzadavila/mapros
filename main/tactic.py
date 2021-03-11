@@ -486,3 +486,25 @@ class DoAllSubgoals(Tactic):
         if not tactic:
             return None
         return cls(tactic)
+
+
+class LinearArithmetic(Tactic):
+    def to_lean(self) -> str:
+        return "linarith"
+
+    def to_natural(self, in_math=False) -> str:
+        return "By linear arithmetic"
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"By linear arithmetic", s)
+        if not match:
+            return None
+        return cls()
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"linarith", s)
+        if not match:
+            return None
+        return cls()
