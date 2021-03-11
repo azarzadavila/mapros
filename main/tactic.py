@@ -327,3 +327,31 @@ class BySentenceWith(Tactic):
         if not sentence:
             return None
         return cls(match[1], sentence, match[3], match[4])
+
+
+class LetsChooseIn(Tactic):
+    def __init__(self, ident, hyp, point):
+        self.ident = ident
+        self.hyp = hyp
+        self.point = point
+
+    def to_lean(self) -> str:
+        return "have " + self.ident + " := " + self.hyp + " " + self.point
+
+    def to_natural(self, in_math=False) -> str:
+        return "Let's choose " + self.point + " in " + self.hyp
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"Let's choose (\w+) in (\w+)", s)
+        if not match:
+            return None
+        ident = context.next_anonymous()
+        return cls(ident, match[2], match[1])
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"have (\w+) := (\w+) (\w+)", s)
+        if not match:
+            return None
+        return cls(match[1], match[2], match[3])

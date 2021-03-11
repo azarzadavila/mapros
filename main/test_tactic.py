@@ -19,6 +19,7 @@ from main.tactic import (
     ByInequalityProperties,
     LetNInequality,
     BySentenceWith,
+    LetsChooseIn,
 )
 from main.test_utils import test_bijective
 
@@ -103,3 +104,10 @@ class BySentenceWithTest(TestCase):
         context.add("a", "sequence")
         context.add("b", "sequence")
         test_bijective(self, BySentenceWith, natural, lean, context)
+
+
+class LetsChooseInTest(TestCase):
+    def test_bacis(self):
+        natural = "Let's choose n in H1"
+        lean = "have A1 := H1 n"
+        test_bijective(self, LetsChooseIn, natural, lean)
