@@ -28,6 +28,9 @@ def from_natural(s: str, cls, context=None, in_math=False):
     if cls == BySentenceWith:
         match = Inequality.from_natural(s, context, in_math)
         return match
+    if cls == DoAllSubgoals:
+        match = SplitGoal.from_natural(s, context, in_math)
+        return match
     raise NotImplementedError
 
 
@@ -47,6 +50,9 @@ def from_lean(s: str, cls, context=None):
         return match
     if cls == BySentenceWith:
         match = Inequality.from_lean(s, context)
+        return match
+    if cls == DoAllSubgoals:
+        match = SplitGoal.from_lean(s, context)
         return match
     raise NotImplementedError
 
@@ -427,3 +433,56 @@ class Cases(Tactic):
         if not match:
             return None
         return cls(match[1])
+
+
+class SplitGoal(Tactic):
+    def to_lean(self) -> str:
+        return "split"
+
+    def to_natural(self, in_math=False) -> str:
+        return "Let's split the goal"
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"Let's split the goal", s)
+        if not match:
+            return None
+        return cls()
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"split", s)
+        if not match:
+            return None
+        return cls()
+
+
+class DoAllSubgoals(Tactic):
+    def __init__(self, tactic):
+        self.tactic = tactic
+
+    def to_lean(self) -> str:
+        return self.tactic.to_lean() + ";"
+
+    def to_natural(self, in_math=False) -> str:
+        return self.tactic.to_natural() + " and do on all subgoals"
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"(.+) and do on all subgoals", s)
+        if not match:
+            return None
+        tactic = from_natural(match[1], cls, context)
+        if not tactic:
+            return None
+        return cls(tactic)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"(.+);", s)
+        if not match:
+            return None
+        tactic = from_lean(match[1], cls, context)
+        if not tactic:
+            return None
+        return cls(tactic)

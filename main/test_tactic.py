@@ -22,6 +22,8 @@ from main.tactic import (
     LetsChooseIn,
     AbsoluteValueIneqProperty,
     Cases,
+    SplitGoal,
+    DoAllSubgoals,
 )
 from main.test_utils import test_bijective
 
@@ -127,3 +129,17 @@ class CasesTest(TestCase):
         natural = "Let's separate H1"
         lean = "cases H1"
         test_bijective(self, Cases, natural, lean)
+
+
+class SplitGoalTest(TestCase):
+    def test_basic(self):
+        natural = "Let's split the goal"
+        lean = "split"
+        test_bijective(self, SplitGoal, natural, lean)
+
+
+class DoAllSubgoalsTest(TestCase):
+    def test_basic(self):
+        natural = "Let's split the goal and do on all subgoals"
+        lean = "split;"
+        test_bijective(self, DoAllSubgoals, natural, lean)
