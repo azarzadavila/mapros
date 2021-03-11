@@ -1,5 +1,20 @@
 from main.context import Context
 from main.sentences import RealValuedSequences, RealDeclaration, SequenceLimit, ForAll
+from main.tactic import (
+    LetGoalLimit,
+    ChooseNEpsilonLimit,
+    LetMax,
+    Use,
+    ByInequalityProperties,
+    LetNInequality,
+    BySentenceWith,
+    LetsChooseIn,
+    AbsoluteValueIneqProperty,
+    Cases,
+    SplitGoal,
+    DoAllSubgoals,
+    LinearArithmetic,
+)
 
 
 class Manager:
@@ -8,6 +23,7 @@ class Manager:
         self.hypotheses = []
         self.initial_goal = None
         self.theorem_name = "anonymous"
+        self.proof = []
 
     def add_hypothesis(self, nat):
         match = RealValuedSequences.from_natural(nat, self.context)
@@ -39,6 +55,32 @@ class Manager:
                 count += 1
         return res
 
+    def add_proof_line(self, nat):
+        possible = [
+            DoAllSubgoals,
+            LetGoalLimit,
+            ChooseNEpsilonLimit,
+            LetMax,
+            Use,
+            ByInequalityProperties,
+            LetNInequality,
+            BySentenceWith,
+            LetsChooseIn,
+            AbsoluteValueIneqProperty,
+            Cases,
+            SplitGoal,
+            LinearArithmetic,
+        ]
+        i = 0
+        match = None
+        while not match and i < len(possible):
+            match = possible[i].from_natural(nat, self.context)
+            i += 1
+        if not match:
+            raise ValueError("Unrecognized tactic")
+        # TODO get lean response if needed
+        self.proof.append({"type": "user", "obj": match})
+
     def to_lean(self):
         s = "theorem " + self.theorem_name
         s += "\n"
@@ -54,6 +96,11 @@ class Manager:
         s += self.initial_goal.to_lean() + "\n"
         s += ":=\n"
         s += "begin\n"
-        s += "sorry,\n"
+        for proof_line in self.proof:
+            obj = proof_line["obj"]
+            s += obj.to_lean()
+            if not isinstance(obj, DoAllSubgoals):
+                s += ","
+            s += "\n"
         s += "end"
         return s
