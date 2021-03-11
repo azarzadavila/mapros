@@ -355,3 +355,50 @@ class LetsChooseIn(Tactic):
         if not match:
             return None
         return cls(match[1], match[2], match[3])
+
+
+class AbsoluteValueIneqProperty(Tactic):
+    def __init__(self, identifiers):
+        self.identifiers = identifiers
+
+    def to_lean(self) -> str:
+        s = "rw abs_sub_lt_iff at"
+        for ident in self.identifiers:
+            if ident == "goal":
+                ident = "⊢"
+            s += " " + ident
+        return s
+
+    def to_natural(self, in_math=False) -> str:
+        s = "Let's use absolute value inequality property on"
+        for ident in self.identifiers[:-1]:
+            s += " " + ident
+        s += " and on " + self.identifiers[-1]
+        return s
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(
+            r"Let's use absolute value inequality property on((:? \w+)*) and on (\w+)",
+            s,
+        )
+        if not match:
+            return None
+        firsts = match[1]
+        firsts = firsts.split(" ")
+        if len(firsts) > 0:
+            firsts = firsts[1:]
+        firsts.append(match[3])
+        return cls(firsts)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"rw abs_sub_lt_iff at((?: (?:\w+|⊢))+)", s)
+        if not match:
+            return None
+        idents = match[1].split(" ")
+        idents = idents[1:]
+        for i in range(len(idents)):
+            if idents[i] == "⊢":
+                idents[i] = "goal"
+        return cls(idents)

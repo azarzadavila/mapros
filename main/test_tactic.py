@@ -20,6 +20,7 @@ from main.tactic import (
     LetNInequality,
     BySentenceWith,
     LetsChooseIn,
+    AbsoluteValueIneqProperty,
 )
 from main.test_utils import test_bijective
 
@@ -107,7 +108,14 @@ class BySentenceWithTest(TestCase):
 
 
 class LetsChooseInTest(TestCase):
-    def test_bacis(self):
+    def test_basic(self):
         natural = "Let's choose n in H1"
         lean = "have A1 := H1 n"
         test_bijective(self, LetsChooseIn, natural, lean)
+
+
+class AbsoluteValueIneqPropertyTest(TestCase):
+    def test_basic(self):
+        natural = "Let's use absolute value inequality property on H1 H2 and on goal"
+        lean = "rw abs_sub_lt_iff at H1 H2 ⊢"
+        test_bijective(self, AbsoluteValueIneqProperty, natural, lean)
