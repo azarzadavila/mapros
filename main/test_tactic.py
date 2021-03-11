@@ -18,6 +18,7 @@ from main.tactic import (
     Use,
     ByInequalityProperties,
     LetNInequality,
+    BySentenceWith,
 )
 from main.test_utils import test_bijective
 
@@ -92,3 +93,13 @@ class LetNInequalityTest(TestCase):
         lean = "intros n A1"
         self.assertIsNone(LetNInequality.from_natural(natural, Context()))
         self.assertIsNone(LetNInequality.from_lean(lean, Context()))
+
+
+class BySentenceWithTest(TestCase):
+    def test_basic(self):
+        natural = r"$a_n \leq b_n$ by H1 with n"
+        lean = "have A1 : a n ≤ b n := H1 n"
+        context = Context()
+        context.add("a", "sequence")
+        context.add("b", "sequence")
+        test_bijective(self, BySentenceWith, natural, lean, context)

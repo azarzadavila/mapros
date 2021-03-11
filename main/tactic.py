@@ -25,6 +25,9 @@ def from_natural(s: str, cls, context=None, in_math=False):
     if cls == ByInequalityProperties:
         match = Inequality.from_natural(s, context, in_math)
         return match
+    if cls == BySentenceWith:
+        match = Inequality.from_natural(s, context, in_math)
+        return match
     raise NotImplementedError
 
 
@@ -40,6 +43,9 @@ def from_lean(s: str, cls, context=None):
             match = Identifier.from_lean(s, context)
         return match
     if cls == ByInequalityProperties:
+        match = Inequality.from_lean(s, context)
+        return match
+    if cls == BySentenceWith:
         match = Inequality.from_lean(s, context)
         return match
     raise NotImplementedError
@@ -277,3 +283,47 @@ class LetNInequality(Tactic):
         ident = match[1]
         hyp = match[2]
         return cls(ident, hyp)
+
+
+class BySentenceWith(Tactic):
+    def __init__(self, ident, sentence, hyp, with_w):
+        self.ident = ident
+        self.sentence = sentence
+        self.hyp = hyp
+        self.with_w = with_w
+
+    def to_lean(self) -> str:
+        return (
+            "have "
+            + self.ident
+            + " : "
+            + self.sentence.to_lean()
+            + " := "
+            + self.hyp
+            + " "
+            + self.with_w
+        )
+
+    def to_natural(self, in_math=False) -> str:
+        return self.sentence.to_natural() + " by " + self.hyp + " with " + self.with_w
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        match = re.search(r"(.+) by (\w+) with (\w+)", s)
+        if not match:
+            return None
+        sentence = from_natural(match[1], cls, context)
+        if not sentence:
+            return None
+        ident = context.next_anonymous()
+        return cls(ident, sentence, match[2], match[3])
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"have (\w+) : (.+) := (\w+) (\w+)", s)
+        if not match:
+            return None
+        sentence = from_lean(match[2], cls, context)
+        if not sentence:
+            return None
+        return cls(match[1], sentence, match[3], match[4])
