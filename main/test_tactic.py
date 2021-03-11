@@ -110,6 +110,13 @@ class BySentenceWithTest(TestCase):
         context.add("b", "sequence")
         test_bijective(self, BySentenceWith, natural, lean, context)
 
+    def test_absdiff(self):
+        natural = r"$|a_n - l| < \epsilon$ by H1 with H2"
+        lean = "have A1 : |a n - l| < ε := H1 H2"
+        context = Context()
+        context.add("a", "sequence")
+        test_bijective(self, BySentenceWith, natural, lean, context)
+
 
 class LetsChooseInTest(TestCase):
     def test_basic(self):

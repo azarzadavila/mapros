@@ -7,6 +7,7 @@ from main.sentences import (
     SequenceLimit,
     Inequality,
     ForAll,
+    AbsoluteDiff,
 )
 from main.test_utils import test_bijective
 
@@ -61,3 +62,31 @@ class ForAllTest(TestCase):
         natural = r"$\forall x : x < a$"
         lean = "∀ x, x < a"
         test_bijective(self, ForAll, natural, lean)
+
+
+class AbsoluteDiffTest(TestCase):
+    def test_basic(self):
+        natural = r"$|a - b|$"
+        lean = "|a - b|"
+        test_bijective(self, AbsoluteDiff, natural, lean)
+
+    def test_sequence(self):
+        natural = r"$|a_n - b_n|$"
+        lean = "|a n - b n|"
+        context = Context()
+        context.add("a", "sequence")
+        context.add("b", "sequence")
+        test_bijective(self, AbsoluteDiff, natural, lean, context)
+
+    def test_inequality(self):
+        natural = r"$|a - b| \leq n$"
+        lean = "|a - b| ≤ n"
+        test_bijective(self, Inequality, natural, lean)
+
+    def test_inequality_sequence(self):
+        natural = r"$|a_n - b_n| \leq n$"
+        lean = r"|a n - b n| ≤ n"
+        context = Context()
+        context.add("a", "sequence")
+        context.add("b", "sequence")
+        test_bijective(self, Inequality, natural, lean, context)

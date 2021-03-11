@@ -47,6 +47,15 @@ def from_natural(s: str, cls, context=None, in_math=False):
         match = Inequality.from_natural(s, context, in_math)
         return match
     if cls == Inequality:
+        match = AbsoluteDiff.from_natural(s, context, in_math)
+        if not match:
+            match = ApplySequence.from_natural(s, context, in_math)
+        if not match:
+            match = IdentifierEpsilon.from_natural(s, context, in_math)
+        if not match:
+            match = Identifier.from_natural(s, context, in_math)
+        return match
+    if cls == AbsoluteDiff:
         match = ApplySequence.from_natural(s, context, in_math)
         if not match:
             match = Identifier.from_natural(s, context, in_math)
@@ -59,9 +68,18 @@ def from_lean(s: str, cls, context=None):
         match = Inequality.from_lean(s)
         return match
     if cls == Inequality:
-        match = ApplySequence.from_lean(s, context)
+        match = AbsoluteDiff.from_lean(s, context)
+        if not match:
+            match = ApplySequence.from_lean(s, context)
+        if not match:
+            match = IdentifierEpsilon.from_lean(s, context)
         if not match:
             match = Identifier.from_lean(s)
+        return match
+    if cls == AbsoluteDiff:
+        match = ApplySequence.from_lean(s, context)
+        if not match:
+            match = Identifier.from_lean(s, context)
         return match
     raise NotImplementedError
 
@@ -444,3 +462,54 @@ class ForAllNatIneqThen(Sentence):
             return None
         sentence = match[3]
         return cls(ident, ineq, sentence)
+
+
+class AbsoluteDiff(Sentence):
+    def __init__(self, sentence1, sentence2):
+        self.sentence1 = sentence1
+        self.sentence2 = sentence2
+
+    def to_lean(self) -> str:
+        return "|" + self.sentence1.to_lean() + " - " + self.sentence2.to_lean() + "|"
+
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += "|"
+        s += self.sentence1.to_natural(True)
+        s += " - "
+        s += self.sentence2.to_natural(True)
+        s += "|"
+        if not in_math:
+            s += "$"
+        return s
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.search(r"\$\|(.+) - (.+)\|\$", s)
+        else:
+            match = re.search(r"\|(.+) - (.+)\|", s)
+        if not match:
+            return None
+        sentence1 = from_natural(match[1], cls, context, True)
+        if not sentence1:
+            return None
+        sentence2 = from_natural(match[2], cls, context, True)
+        if not sentence2:
+            return None
+        return cls(sentence1, sentence2)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.search(r"\|(.+) - (.+)\|", s)
+        if not match:
+            return None
+        sentence1 = from_lean(match[1], cls, context)
+        if not sentence1:
+            return None
+        sentence2 = from_lean(match[2], cls, context)
+        if not sentence2:
+            return None
+        return cls(sentence1, sentence2)
