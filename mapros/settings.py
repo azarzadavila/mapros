@@ -48,6 +48,7 @@ INSTALLED_APPS = [
     "corsheaders",
     "formal",
     "leanserver",
+    "main.apps.MainConfig",
 ]
 
 MIDDLEWARE = [
