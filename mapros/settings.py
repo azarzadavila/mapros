@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "formal",
     "leanserver",
     "main.apps.MainConfig",
+    "leanclient.apps.LeanclientConfig",
 ]
 
 MIDDLEWARE = [
