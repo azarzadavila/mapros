@@ -34,7 +34,8 @@ class AskState(APIView):
                 )
             file = open("result.lean", "w")
             try:
-                file.write(manager.to_lean())
+                text, lines = manager.to_lean()
+                file.write(text)
             finally:
                 file.close()
             return Response(res, status=status.HTTP_200_OK)

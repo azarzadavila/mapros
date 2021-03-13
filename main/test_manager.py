@@ -1,5 +1,8 @@
+import os
+
 from django.test import TestCase
 
+import leanclient.client_wrapper as client_wrapper
 from main.manager import Manager
 
 sandwich_hyp = [
@@ -86,4 +89,19 @@ cases A14,
 split;
 linarith,
 end"""
-        self.assertEqual(manager.to_lean(), expected)
+        actual, _ = manager.to_lean(header=False)
+        self.assertEqual(actual, expected)
+
+    def test_client_wrapper(self):
+        manager = Manager()
+        manager.theorem_name = "sandwich"
+        for hyp in sandwich_hyp:
+            manager.add_hypothesis(hyp)
+        manager.set_initial_goal(sandwich_goal)
+        for proof in sandwich_proof:
+            manager.add_proof_line(proof)
+        text, lines = manager.to_lean()
+        file = open(client_wrapper.LEAN_DIR_SRC + "result.lean", "w")
+        file.write(text)
+        file.close()
+        client_wrapper.states("result.lean", lines)
