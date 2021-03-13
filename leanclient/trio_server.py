@@ -12,7 +12,7 @@ from pathlib import Path
 
 import trio # type: ignore
 
-from lean_client.commands import (parse_response, SyncRequest, InfoRequest,
+from leanclient.commands import (parse_response, SyncRequest, InfoRequest,
         Request, CommandResponse, Message, Task, Response,
         InfoResponse, AllMessagesResponse, Severity, CurrentTasksResponse)
 

@@ -179,6 +179,7 @@ class InfoRecord:
     state: Optional[GoalState] = None
     tactic_param_idx: Optional[int] = None
     tactic_params: Optional[List[str]] = None
+    widget: Optional[dict] = None
 
     @classmethod
     def from_dict(cls, dic):
