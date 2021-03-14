@@ -3,6 +3,7 @@ from pathlib import Path
 import trio
 import os
 
+from leanclient.commands import Severity
 from leanclient.trio_server import TrioLeanServer
 
 LEAN_DIR = "lean-project/"
@@ -15,6 +16,13 @@ def chdir():
     return cur
 
 
+def get_error(messages):
+    for msg in messages:
+        if msg.severity == Severity.error:
+            return msg.text
+    return None
+
+
 async def states_lines_async(path, lines):
     tot_lines = Path(path).read_text().split("\n")
     res = []
@@ -22,19 +30,20 @@ async def states_lines_async(path, lines):
         server = TrioLeanServer(nursery)
         await server.start()
         await server.full_sync(path)
+        err = get_error(server.messages)
         for i in range(len(lines)):
             after = await server.state(path, lines[i], len(tot_lines[lines[i] - 1]))
             res.append(after)
         server.kill()
         nursery.cancel_scope.cancel()
-    return res
+    return res, err
 
 
 def states(path, lines):
     old_dir = chdir()
     path = "src/" + path
     try:
-        res = trio.run(states_lines_async, path, lines)
+        res, err = trio.run(states_lines_async, path, lines)
     finally:
         os.chdir(old_dir)
-    return res
+    return res, err
