@@ -1,5 +1,6 @@
 from abc import ABC
 import re
+from typing import List
 
 from main.language import Language
 from main.sentences import (
@@ -58,7 +59,8 @@ def from_lean(s: str, cls, context=None):
 
 
 class Tactic(Language, ABC):
-    pass
+    def to_extract(self) -> List:
+        raise NotImplementedError
 
 
 class LetGoalLimit(Tactic):
@@ -99,6 +101,9 @@ class LetGoalLimit(Tactic):
         hyp = match[2]
         context.associate(ident.to_lean(), hyp)
         return cls(ident, hyp)
+
+    def to_extract(self) -> List:
+        return [self.hyp]
 
 
 class ChooseNEpsilonLimit(Tactic):
@@ -163,6 +168,9 @@ class ChooseNEpsilonLimit(Tactic):
         hyp_n = match[5]
         return cls(limit_def, eps, hyp_eps, n_chosen, hyp_n)
 
+    def to_extract(self) -> List:
+        return [self.hyp_n]
+
 
 class LetMax(Tactic):
     def __init__(self, ident, ident1, ident2):
@@ -192,6 +200,9 @@ class LetMax(Tactic):
             return None
         return cls(match[1], match[2], match[3])
 
+    def to_extract(self) -> List:
+        return []
+
 
 class Use(Tactic):
     def __init__(self, ident):
@@ -216,6 +227,9 @@ class Use(Tactic):
         if not match:
             return None
         return cls(match[1])
+
+    def to_extract(self) -> List:
+        return []
 
 
 class ByInequalityProperties(Tactic):
@@ -256,6 +270,9 @@ class ByInequalityProperties(Tactic):
             return None
         return cls(match[1], sentence)
 
+    def to_extract(self) -> List:
+        return [self.ident]
+
 
 class LetNInequality(Tactic):
     def __init__(self, ident, hyp):
@@ -289,6 +306,9 @@ class LetNInequality(Tactic):
         ident = match[1]
         hyp = match[2]
         return cls(ident, hyp)
+
+    def to_extract(self) -> List:
+        return [self.hyp]
 
 
 class BySentenceWith(Tactic):
@@ -334,6 +354,9 @@ class BySentenceWith(Tactic):
             return None
         return cls(match[1], sentence, match[3], match[4])
 
+    def to_extract(self) -> List:
+        return [self.ident]
+
 
 class LetsChooseIn(Tactic):
     def __init__(self, ident, hyp, point):
@@ -361,6 +384,9 @@ class LetsChooseIn(Tactic):
         if not match:
             return None
         return cls(match[1], match[2], match[3])
+
+    def to_extract(self) -> List:
+        return [self.ident]
 
 
 class AbsoluteValueIneqProperty(Tactic):
@@ -409,6 +435,9 @@ class AbsoluteValueIneqProperty(Tactic):
                 idents[i] = "goal"
         return cls(idents)
 
+    def to_extract(self) -> List:
+        return []
+
 
 class Cases(Tactic):
     def __init__(self, ident):
@@ -434,6 +463,9 @@ class Cases(Tactic):
             return None
         return cls(match[1])
 
+    def to_extract(self) -> List:
+        return []
+
 
 class SplitGoal(Tactic):
     def to_lean(self) -> str:
@@ -455,6 +487,9 @@ class SplitGoal(Tactic):
         if not match:
             return None
         return cls()
+
+    def to_extract(self) -> List:
+        return []
 
 
 class DoAllSubgoals(Tactic):
@@ -487,6 +522,9 @@ class DoAllSubgoals(Tactic):
             return None
         return cls(tactic)
 
+    def to_extract(self) -> List:
+        return []
+
 
 class LinearArithmetic(Tactic):
     def to_lean(self) -> str:
@@ -508,3 +546,6 @@ class LinearArithmetic(Tactic):
         if not match:
             return None
         return cls()
+
+    def to_extract(self) -> List:
+        return []

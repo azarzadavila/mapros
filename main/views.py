@@ -4,7 +4,7 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from leanclient import client_wrapper
-from main.manager import Manager, extract_goals
+from main.manager import Manager, extract_goals, extract_variable
 from main.serializers import AskStateSerializer
 
 
@@ -28,6 +28,7 @@ class AskState(APIView):
                     ),
                     "initialState": "",
                     "states": [""] * len(serializer.validated_data["proofs"]),
+                    "additional": [""] * len(serializer.validated_data["proofs"]),
                 }
             except ValueError as e:
                 return Response(
@@ -45,5 +46,12 @@ class AskState(APIView):
             res["initialState"] = initial_goal
             goals = goals[1:]
             res["states"] = goals
+            additional = []
+            for i in range(len(states[1:])):
+                addi = []
+                for var in manager.to_extract[i]:
+                    addi.append(extract_variable(states[i + 1], var))
+                additional.append(addi)
+            res["additional"] = additional
             return Response(res, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

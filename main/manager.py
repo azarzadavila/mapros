@@ -75,6 +75,31 @@ def extract_variable(state, ident):
     return None
 
 
+def lean_goal_to_nat(s, context):
+    # TODO
+    return s
+
+
+def lean_error_to_nat(s, context):
+    # TODO
+    return s
+
+
+def lean_variable_to_nat(s, context):
+    # TODO
+    return s
+
+
+def nat_hypothesis_to_lean(s, context):
+    # TODO
+    return s
+
+
+def nat_tactic_to_lean(s, context):
+    # TODO
+    return s
+
+
 class Manager:
     def __init__(self):
         self.context = Context()
@@ -82,6 +107,7 @@ class Manager:
         self.initial_goal = None
         self.theorem_name = "anonymous"
         self.proof = []
+        self.to_extract = []
 
     def add_hypothesis(self, nat):
         match = RealValuedSequences.from_natural(nat, self.context)
@@ -138,6 +164,7 @@ class Manager:
             raise ValueError("Unrecognized tactic")
         # TODO get lean response if needed
         self.proof.append({"type": "user", "obj": match})
+        self.to_extract.append(match.to_extract())
 
     def to_lean(self, header=True):
         s = ""
