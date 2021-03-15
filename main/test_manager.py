@@ -3,7 +3,7 @@ import os
 from django.test import TestCase
 
 import leanclient.client_wrapper as client_wrapper
-from main.manager import Manager
+from main.manager import Manager, extract_goal
 
 sandwich_hyp = [
     "$a_n, b_n, c_n$ are real-valued sequences",
@@ -105,3 +105,10 @@ end"""
         file.write(text)
         file.close()
         client_wrapper.states("result.lean", lines)
+
+
+class TestExtract(TestCase):
+    def test_extract_goal(self):
+        states, err = client_wrapper.states("sandwich.lean", [33])
+        state = states[0]
+        self.assertEqual(extract_goal(state), "is_limit b l")

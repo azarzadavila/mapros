@@ -1,3 +1,5 @@
+import re
+
 from main.context import Context
 from main.sentences import RealValuedSequences, RealDeclaration, SequenceLimit, ForAll
 from main.tactic import (
@@ -30,6 +32,22 @@ definition is_limit (a : ℕ → ℝ) (l : ℝ) :=
 """
 
 START = len(HEADER.split("\n"))
+
+
+def extract_goal(state):
+    goal = state.split("\n")[-1]
+    match = re.search(r"⊢ (.+)", goal)
+    if not match:
+        return None
+    return match[1]
+
+
+def extract_error(msg):
+    pass
+
+
+def extract_variable(state, ident):
+    pass
 
 
 class Manager:
