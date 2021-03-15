@@ -50,7 +50,9 @@ class AskState(APIView):
             for i in range(len(states[1:])):
                 addi = []
                 for var in manager.to_extract[i]:
-                    addi.append(extract_variable(states[i + 1], var))
+                    addi.append(
+                        {"ident": var, "value": extract_variable(states[i + 1], var)}
+                    )
                 additional.append(addi)
             res["additional"] = additional
             return Response(res, status=status.HTTP_200_OK)
