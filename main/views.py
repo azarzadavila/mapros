@@ -3,7 +3,8 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
 
-from main.manager import Manager
+from leanclient import client_wrapper
+from main.manager import Manager, extract_goals
 from main.serializers import AskStateSerializer
 
 
@@ -32,11 +33,17 @@ class AskState(APIView):
                 return Response(
                     {"detail": "{}".format(e)}, status=status.HTTP_400_BAD_REQUEST
                 )
-            file = open("result.lean", "w")
+            file = open(client_wrapper.LEAN_DIR_SRC + "result.lean", "w")
             try:
                 text, lines = manager.to_lean()
                 file.write(text)
             finally:
                 file.close()
+            states, err = client_wrapper.states("result.lean", lines)
+            goals = extract_goals(states)
+            initial_goal = goals[0]
+            res["initialState"] = initial_goal
+            goals = goals[1:]
+            res["states"] = goals
             return Response(res, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)

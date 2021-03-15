@@ -42,6 +42,10 @@ def extract_goal(state):
     return match[1]
 
 
+def extract_goals(states):
+    return list(map(lambda state: extract_goal(state), states))
+
+
 def extract_error(msg):
     msg = msg.split("\n")
     index = 0
@@ -152,18 +156,17 @@ class Manager:
             if ident_hyp[i]:
                 s += ident_hyp[i] + " : "
             s += self.hypotheses[i].to_lean()
-            lines.append(start)
             s += ")"
             s += "\n"
             start += 1
         s += ":\n"
         start += 1
         s += self.initial_goal.to_lean() + "\n"
-        lines.append(start)
         start += 1
         s += ":=\n"
         start += 1
         s += "begin\n"
+        lines.append(start)
         start += 1
         for proof_line in self.proof:
             obj = proof_line["obj"]
