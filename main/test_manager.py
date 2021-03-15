@@ -3,7 +3,7 @@ import os
 from django.test import TestCase
 
 import leanclient.client_wrapper as client_wrapper
-from main.manager import Manager, extract_goal
+from main.manager import Manager, extract_goal, extract_error
 
 sandwich_hyp = [
     "$a_n, b_n, c_n$ are real-valued sequences",
@@ -112,3 +112,20 @@ class TestExtract(TestCase):
         states, err = client_wrapper.states("sandwich.lean", [33])
         state = states[0]
         self.assertEqual(extract_goal(state), "is_limit b l")
+
+    def test_extract_error(self):
+        states, err = client_wrapper.states("sandwich_error.lean", [40])
+        expected = r"unknown identifier 'He'"
+        self.assertEqual(extract_error(err), expected)
+
+    def test_extract_error_multi(self):
+        states, err = client_wrapper.states("sandwich_error_multiline.lean", [40])
+        expected = r"""type mismatch at application
+  ha ε hc
+term
+  hc
+has type
+  is_limit c l
+but is expected to have type
+  ε > 0"""
+        self.assertEqual(extract_error(err), expected)

@@ -43,7 +43,18 @@ def extract_goal(state):
 
 
 def extract_error(msg):
-    pass
+    msg = msg.split("\n")
+    index = 0
+    match = None
+    while not match and index < len(msg):
+        match = re.search(r"state", msg[index])
+        index += 1
+    if not match:
+        return None
+    index -= 1
+    if index == -1:
+        return None
+    return "\n".join(msg[:index])
 
 
 def extract_variable(state, ident):
