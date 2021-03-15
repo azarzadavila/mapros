@@ -58,7 +58,17 @@ def extract_error(msg):
 
 
 def extract_variable(state, ident):
-    pass
+    state = state.split("\n")
+    for line in state:
+        match = re.match(r"([^:]+) : (.+)", line)
+        if match:
+            idents = match[1].split(" ")
+            for cur in idents:
+                if cur == ident:
+                    if match[2][-1] == ",":
+                        return match[2][:-1]
+                    return match[2]
+    return None
 
 
 class Manager:

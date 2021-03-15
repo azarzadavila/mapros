@@ -3,7 +3,7 @@ import os
 from django.test import TestCase
 
 import leanclient.client_wrapper as client_wrapper
-from main.manager import Manager, extract_goal, extract_error
+from main.manager import Manager, extract_goal, extract_error, extract_variable
 
 sandwich_hyp = [
     "$a_n, b_n, c_n$ are real-valued sequences",
@@ -129,3 +129,15 @@ has type
 but is expected to have type
   ε > 0"""
         self.assertEqual(extract_error(err), expected)
+
+    def test_extract_variable(self):
+        states, err = client_wrapper.states("sandwich.lean", [58])
+        state = states[0]
+        expected = "a n ≤ b n"
+        self.assertEqual(extract_variable(state, "h1"), expected)
+
+    def test_extract_variable_multiple(self):
+        states, err = client_wrapper.states("sandwich.lean", [58])
+        state = states[0]
+        expected = "ℕ → ℝ"
+        self.assertEqual(extract_variable(state, "b"), expected)
