@@ -34,7 +34,7 @@ class LetGoalLimit(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"Let \$(\\?\w+)\$", s)
+        match = re.fullmatch(r"Let \$(\\?\w+)\$", s)
         if not match:
             return None
         if not isinstance(context.current_goal, SequenceLimit):
@@ -50,7 +50,7 @@ class LetGoalLimit(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"intros (\w+) (\w+)", s)
+        match = re.fullmatch(r"intros (\w+) (\w+)", s)
         if not match:
             return None
         if not isinstance(context.current_goal, SequenceLimit):
@@ -105,7 +105,7 @@ class ChooseNEpsilonLimit(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(
+        match = re.fullmatch(
             r"Let's choose \$(\w+)\$ such that (\w+) uses \$(\\?\w+)\$", s
         )
         if not match:
@@ -124,7 +124,7 @@ class ChooseNEpsilonLimit(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"cases (\w+) (\w+) (\w+) with (\w+) (\w+)", s)
+        match = re.fullmatch(r"cases (\w+) (\w+) (\w+) with (\w+) (\w+)", s)
         if not match:
             return None
         limit_def = match[1]
@@ -154,14 +154,14 @@ class LetMax(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"Let \$(\w+) = max\((\w+), (\w+)\)\$", s)
+        match = re.fullmatch(r"Let \$(\w+) = max\((\w+), (\w+)\)\$", s)
         if not match:
             return None
         return cls(match[1], match[2], match[3])
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"let (\w+) := max (\w+) (\w+)", s)
+        match = re.fullmatch(r"let (\w+) := max (\w+) (\w+)", s)
         if not match:
             return None
         return cls(match[1], match[2], match[3])
@@ -182,14 +182,14 @@ class Use(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"We claim \$(\w+)\$ works", s)
+        match = re.fullmatch(r"We claim \$(\w+)\$ works", s)
         if not match:
             return None
         return cls(match[1])
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"use (\w+)", s)
+        match = re.fullmatch(r"use (\w+)", s)
         if not match:
             return None
         return cls(match[1])
@@ -221,7 +221,7 @@ class ByInequalityProperties(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"By inequality properties, (.+)", s)
+        match = re.fullmatch(r"By inequality properties, (.+)", s)
         if not match:
             return None
         sentence = from_natural(
@@ -234,7 +234,7 @@ class ByInequalityProperties(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"have (\w+) : (.+) := by obvious_ineq", s)
+        match = re.fullmatch(r"have (\w+) : (.+) := by obvious_ineq", s)
         if not match:
             return None
         sentence = from_lean(
@@ -261,7 +261,7 @@ class LetNInequality(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"Let \$(\w+)\$", s)
+        match = re.fullmatch(r"Let \$(\w+)\$", s)
         if not match:
             return None
         if not isinstance(context.current_goal, ForAllNatIneqThen):
@@ -272,7 +272,7 @@ class LetNInequality(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"intros (\w+) (\w+)", s)
+        match = re.fullmatch(r"intros (\w+) (\w+)", s)
         if not match:
             return None
         if not isinstance(context.current_goal, ForAllNatIneqThen):
@@ -313,7 +313,7 @@ class BySentenceWith(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"(.+) by (\w+) with (\w+)", s)
+        match = re.fullmatch(r"(.+) by (\w+) with (\w+)", s)
         if not match:
             return None
         sentence = from_natural(match[1], context, _sentences_match_bysentencewith())
@@ -324,7 +324,7 @@ class BySentenceWith(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"have (\w+) : (.+) := (\w+) (\w+)", s)
+        match = re.fullmatch(r"have (\w+) : (.+) := (\w+) (\w+)", s)
         if not match:
             return None
         sentence = from_lean(match[2], context, _sentences_match_bysentencewith())
@@ -350,7 +350,7 @@ class LetsChooseIn(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"Let's choose (\w+) in (\w+)", s)
+        match = re.fullmatch(r"Let's choose (\w+) in (\w+)", s)
         if not match:
             return None
         ident = context.next_anonymous()
@@ -358,7 +358,7 @@ class LetsChooseIn(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"have (\w+) := (\w+) (\w+)", s)
+        match = re.fullmatch(r"have (\w+) := (\w+) (\w+)", s)
         if not match:
             return None
         return cls(match[1], match[2], match[3])
@@ -388,7 +388,7 @@ class AbsoluteValueIneqProperty(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(
+        match = re.fullmatch(
             r"Let's use absolute value inequality property on((:? \w+)*) and on (\w+)",
             s,
         )
@@ -403,7 +403,7 @@ class AbsoluteValueIneqProperty(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"rw abs_sub_lt_iff at((?: (?:\w+|⊢))+)", s)
+        match = re.fullmatch(r"rw abs_sub_lt_iff at((?: (?:\w+|⊢))+)", s)
         if not match:
             return None
         idents = match[1].split(" ")
@@ -429,14 +429,14 @@ class Cases(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"Let's separate (\w+)", s)
+        match = re.fullmatch(r"Let's separate (\w+)", s)
         if not match:
             return None
         return cls(match[1])
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"cases (\w+)", s)
+        match = re.fullmatch(r"cases (\w+)", s)
         if not match:
             return None
         return cls(match[1])
@@ -454,14 +454,14 @@ class SplitGoal(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"Let's split the goal", s)
+        match = re.fullmatch(r"Let's split the goal", s)
         if not match:
             return None
         return cls()
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"split", s)
+        match = re.fullmatch(r"split", s)
         if not match:
             return None
         return cls()
@@ -486,7 +486,7 @@ class DoAllSubgoals(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"(.+) and do on all subgoals", s)
+        match = re.fullmatch(r"(.+) and do on all subgoals", s)
         if not match:
             return None
         tactic = from_natural(match[1], context, _sentences_match_doallsubgoals())
@@ -496,7 +496,7 @@ class DoAllSubgoals(Tactic):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"(.+);", s)
+        match = re.fullmatch(r"(.+);", s)
         if not match:
             return None
         tactic = from_lean(match[1], context, _sentences_match_doallsubgoals())
@@ -517,14 +517,14 @@ class LinearArithmetic(Tactic):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"By linear arithmetic", s)
+        match = re.fullmatch(r"By linear arithmetic", s)
         if not match:
             return None
         return cls()
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"linarith", s)
+        match = re.fullmatch(r"linarith", s)
         if not match:
             return None
         return cls()

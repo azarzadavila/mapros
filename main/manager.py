@@ -45,7 +45,7 @@ START = len(HEADER.split("\n"))
 
 def extract_goal(state):
     goal = state.split("\n")[-1]
-    match = re.search(r"⊢ (.+)", goal)
+    match = re.fullmatch(r"⊢ (.+)", goal)
     if not match:
         return None
     return match[1]
@@ -60,7 +60,7 @@ def extract_error(msg):
     index = 0
     match = None
     while not match and index < len(msg):
-        match = re.search(r"state", msg[index])
+        match = re.match(r"state", msg[index])
         index += 1
     if not match:
         return None

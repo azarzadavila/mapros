@@ -55,14 +55,14 @@ class IdentifierEpsilon(Language):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"\\epsilon", s)
+        match = re.fullmatch(r"\\epsilon", s)
         if not match:
             return None
         return cls()
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"ε", s)
+        match = re.fullmatch(r"ε", s)
         if not match:
             return None
         return cls()
@@ -80,14 +80,14 @@ class Identifier(Language):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(r"(\w+)", s)
+        match = re.fullmatch(r"(\w+)", s)
         if not match:
             return None
         return cls(match[1])
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"(\w+)", s)
+        match = re.fullmatch(r"(\w+)", s)
         if not match:
             return None
         return cls(match[1])
@@ -120,9 +120,9 @@ class RealValuedSequences(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.search(r"\$(\w+_n, )*(\w+_n)\$ are real-valued sequences", s)
+            match = re.fullmatch(r"\$(\w+_n, )*(\w+_n)\$ are real-valued sequences", s)
         else:
-            match = re.search(r"(\w+_n, )*(\w+_n)\$ are real-valued sequences \$", s)
+            match = re.fullmatch(r"(\w+_n, )*(\w+_n)\$ are real-valued sequences \$", s)
         if not match:
             return None
         identifiers = []
@@ -138,7 +138,7 @@ class RealValuedSequences(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"(\w+ )+: ℕ → ℝ", s)
+        match = re.fullmatch(r"(\w+ )+: ℕ → ℝ", s)
         if not match:
             return None
         identifiers = []
@@ -170,9 +170,9 @@ class RealDeclaration(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.search(r"\$(\w+) \\in \\mathbb\{R\}\$", s)
+            match = re.fullmatch(r"\$(\w+) \\in \\mathbb\{R\}\$", s)
         else:
-            match = re.search(r"(\w+) \\in \\mathbb\{R\}", s)
+            match = re.fullmatch(r"(\w+) \\in \\mathbb\{R\}", s)
         if not match:
             return None
         context.add(match[1], "real")
@@ -180,7 +180,7 @@ class RealDeclaration(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"(\w+) : ℝ", s)
+        match = re.fullmatch(r"(\w+) : ℝ", s)
         if not match:
             return None
         context.add(match[1], "real")
@@ -207,16 +207,16 @@ class SequenceLimit(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.search(r"\$(\w+)_n \\rightarrow (\w+)\$", s)
+            match = re.fullmatch(r"\$(\w+)_n \\rightarrow (\w+)\$", s)
         else:
-            match = re.search(r"(\w+)_n \\rightarrow (\w+)", s)
+            match = re.fullmatch(r"(\w+)_n \\rightarrow (\w+)", s)
         if not match:
             return None
         return cls(match[1], match[2])
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"is_limit (\w+) (\w+)", s)
+        match = re.fullmatch(r"is_limit (\w+) (\w+)", s)
         if not match:
             return None
         return cls(match[1], match[2])
@@ -260,9 +260,9 @@ class Inequality(Sentence):
     def from_natural(cls, s: str, context=None, in_math=False):
         ineq_symbols = r">|\\geq|<|\\leq"
         if not in_math:
-            match = re.search(r"\$(.+) (" + ineq_symbols + r") (.+)\$", s)
+            match = re.fullmatch(r"\$(.+) (" + ineq_symbols + r") (.+)\$", s)
         else:
-            match = re.search(r"(.+) (" + ineq_symbols + r") (.+)", s)
+            match = re.fullmatch(r"(.+) (" + ineq_symbols + r") (.+)", s)
         if not match:
             return None
         ident1 = from_natural(match[1], context, _sentences_match_inequality(), True)
@@ -276,7 +276,7 @@ class Inequality(Sentence):
     @classmethod
     def from_lean(cls, s: str, context=None):
         ineq_symbols = "|".join(MAP_LEAN_INEQ.keys())
-        match = re.search(r"(.+) (" + ineq_symbols + r") (.+)", s)
+        match = re.fullmatch(r"(.+) (" + ineq_symbols + r") (.+)", s)
         if not match:
             return None
         ident1 = from_lean(match[1], context, _sentences_match_inequality())
@@ -321,14 +321,14 @@ class ApplySequence(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.search(r"\$(\w+)_(\w+)\$", s)
+            match = re.fullmatch(r"\$(\w+)_(\w+)\$", s)
         else:
-            match = re.search(r"(\w+)_(\w+)", s)
+            match = re.fullmatch(r"(\w+)_(\w+)", s)
         return _apply_sequence_if(match, cls, context)
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"(\w+) (\w+)", s)
+        match = re.fullmatch(r"(\w+) (\w+)", s)
         return _apply_sequence_if(match, cls, context)
 
 
@@ -356,9 +356,9 @@ class ForAll(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.search(r"\$\\forall (\w+) : (.+)\$", s)
+            match = re.fullmatch(r"\$\\forall (\w+) : (.+)\$", s)
         else:
-            match = re.search(r"\\forall (\w+) : (.+)", s)
+            match = re.fullmatch(r"\\forall (\w+) : (.+)", s)
         if not match:
             return None
         sentence = from_natural(match[2], context, _sentences_match_forall(), True)
@@ -368,7 +368,7 @@ class ForAll(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"∀ (\w+), (.+)", s)
+        match = re.fullmatch(r"∀ (\w+), (.+)", s)
         if not match:
             return None
         sentence = from_lean(match[2], context, _sentences_match_forall())
@@ -401,7 +401,7 @@ class ForAllNatIneqThen(Sentence):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.search(
+        match = re.fullmatch(
             r"\$\\forall (\w+) \\in \\mathbb\{N\} : (.+) \\Rightarrow (.+)\$", s
         )
         if not match:
@@ -415,7 +415,7 @@ class ForAllNatIneqThen(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"∀ \((\w+) : ℕ\), (.+) → (.+)", s)
+        match = re.fullmatch(r"∀ \((\w+) : ℕ\), (.+) → (.+)", s)
         if not match:
             return None
         ident = match[1]
@@ -454,9 +454,9 @@ class AbsoluteDiff(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.search(r"\$\|(.+) - (.+)\|\$", s)
+            match = re.fullmatch(r"\$\|(.+) - (.+)\|\$", s)
         else:
-            match = re.search(r"\|(.+) - (.+)\|", s)
+            match = re.fullmatch(r"\|(.+) - (.+)\|", s)
         if not match:
             return None
         sentence1 = from_natural(
@@ -473,7 +473,7 @@ class AbsoluteDiff(Sentence):
 
     @classmethod
     def from_lean(cls, s: str, context=None):
-        match = re.search(r"\|(.+) - (.+)\|", s)
+        match = re.fullmatch(r"\|(.+) - (.+)\|", s)
         if not match:
             return None
         sentence1 = from_lean(match[1], context, _sentences_match_absolutediff())

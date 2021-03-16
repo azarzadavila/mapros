@@ -31,7 +31,7 @@ sandwich_proof = [
     r"By inequality properties, $N_c \leq n$",
     r"Let's choose n in A3",
     r"$|c_n - l| < \epsilon$ by A13 with A12",
-    r"$Let's use absolute value inequality property on A11 A14 and on goal$",
+    r"Let's use absolute value inequality property on A11 A14 and on goal",
     r"Let's separate A11",
     r"Let's separate A14",
     r"Let's split the goal and do on all subgoals",
