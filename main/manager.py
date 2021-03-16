@@ -43,6 +43,14 @@ definition is_limit (a : ℕ → ℝ) (l : ℝ) :=
 START = len(HEADER.split("\n"))
 
 
+def is_accomplished(state):
+    goal = state.split("\n")[-1]
+    match = re.match("(goals accomplished)|(no goals)", goal)
+    if not match:
+        return False
+    return True
+
+
 def extract_goal(state):
     goal = state.split("\n")[-1]
     match = re.fullmatch(r"⊢ (.+)", goal)

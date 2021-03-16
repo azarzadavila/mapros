@@ -10,7 +10,7 @@ from main.manager import (
     extract_variable,
     extract_error,
     lean_variable_to_nat,
-    lean_goal_to_nat,
+    lean_goal_to_nat, is_accomplished,
 )
 from main.serializers import AskStateSerializer
 
@@ -40,7 +40,10 @@ def get_goals(manager, states):
     goals = extract_goals(states)
     initial_goal = goals[0]
     goals = goals[1:]
-    initial_goal = lean_goal_to_nat(initial_goal, manager.initial_context)
+    if initial_goal:
+        initial_goal = lean_goal_to_nat(initial_goal, manager.initial_context)
+    else:
+        initial_goal = ""
     goals_nat = []
     for i in range(len(goals)):
         if goals[i]:
@@ -97,6 +100,10 @@ class AskState(APIView):
             sentences = get_sentences(manager, states)
             if err:
                 err = extract_error(err)
+            else:
+                if goals and goals[-1] == "":
+                    if is_accomplished(states[-1]):
+                        err = "goals accomplished"
             res = {
                 "hypotheses_ident": hypotheses_ident,
                 "initial_goal": initial_goal,
