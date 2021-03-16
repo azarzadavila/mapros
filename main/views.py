@@ -43,7 +43,10 @@ def get_goals(manager, states):
     initial_goal = lean_goal_to_nat(initial_goal, manager.initial_context)
     goals_nat = []
     for i in range(len(goals)):
-        goal = lean_goal_to_nat(goals[i], manager.contexts[i])
+        if goals[i]:
+            goal = lean_goal_to_nat(goals[i], manager.contexts[i])
+        else:
+            goal = ""
         goals_nat.append(goal)
     return initial_goal, goals_nat
 
@@ -55,8 +58,9 @@ def get_sentences(manager, states):
         cur_sentences = []
         for ident in manager.to_extract[i]:
             sentence = extract_variable(states[i], ident)
-            sentence = lean_variable_to_nat(sentence, manager.contexts[i])
-            cur_sentences.append({"ident": ident, "sentence": sentence})
+            if sentence:
+                sentence = lean_variable_to_nat(sentence, manager.contexts[i])
+                cur_sentences.append({"ident": ident, "sentence": sentence})
         sentences.append(cur_sentences)
     return sentences
 
