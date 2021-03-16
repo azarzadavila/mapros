@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from main.context import Context
 from main.language import from_natural, from_lean
+from main.preprocess import preprocess
 from main.sentences import (
     RealValuedSequences,
     RealDeclaration,
@@ -131,6 +132,7 @@ class Manager:
         self.initial_context = None
 
     def add_hypothesis(self, nat):
+        nat = preprocess(nat)
         sentences_match = [RealValuedSequences, RealDeclaration, SequenceLimit, ForAll]
         match = from_natural(nat, self.context, sentences_match)
         if not match:
@@ -138,6 +140,7 @@ class Manager:
         self.hypotheses.append(match)
 
     def set_initial_goal(self, nat):
+        nat = preprocess(nat)
         match = SequenceLimit.from_natural(nat, self.context)
         if not match:
             raise ValueError("Unrecognized goal")
@@ -157,6 +160,7 @@ class Manager:
         return res
 
     def add_proof_line(self, nat):
+        nat = preprocess(nat)
         tactics_match = [
             DoAllSubgoals,
             LetGoalLimit,
