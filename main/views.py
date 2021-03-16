@@ -4,7 +4,14 @@ from rest_framework.views import APIView
 from rest_framework import status
 
 from leanclient import client_wrapper
-from main.manager import Manager, extract_goals, extract_variable, extract_error
+from main.manager import (
+    Manager,
+    extract_goals,
+    extract_variable,
+    extract_error,
+    lean_variable_to_nat,
+    lean_goal_to_nat,
+)
 from main.serializers import AskStateSerializer
 
 
@@ -29,11 +36,16 @@ def write_to_lean(manager):
     return text, lines
 
 
-def get_goals(states):
+def get_goals(manager, states):
     goals = extract_goals(states)
     initial_goal = goals[0]
     goals = goals[1:]
-    return initial_goal, goals
+    initial_goal = lean_goal_to_nat(initial_goal, manager.initial_context)
+    goals_nat = []
+    for i in range(len(goals)):
+        goal = lean_goal_to_nat(goals[i], manager.contexts[i])
+        goals_nat.append(goal)
+    return initial_goal, goals_nat
 
 
 def get_sentences(manager, states):
@@ -43,6 +55,7 @@ def get_sentences(manager, states):
         cur_sentences = []
         for ident in manager.to_extract[i]:
             sentence = extract_variable(states[i], ident)
+            sentence = lean_variable_to_nat(sentence, manager.contexts[i])
             cur_sentences.append({"ident": ident, "sentence": sentence})
         sentences.append(cur_sentences)
     return sentences
@@ -76,7 +89,7 @@ class AskState(APIView):
             text, lines = write_to_lean(manager)
             states, err = client_wrapper.states("result.lean", lines)
             hypotheses_ident = get_hypotheses_ident(manager)
-            initial_goal, goals = get_goals(states)
+            initial_goal, goals = get_goals(manager, states)
             sentences = get_sentences(manager, states)
             if err:
                 err = extract_error(err)

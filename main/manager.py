@@ -1,8 +1,16 @@
 import re
+from copy import deepcopy
 
 from main.context import Context
-from main.language import from_natural
-from main.sentences import RealValuedSequences, RealDeclaration, SequenceLimit, ForAll
+from main.language import from_natural, from_lean
+from main.sentences import (
+    RealValuedSequences,
+    RealDeclaration,
+    SequenceLimit,
+    ForAll,
+    COMMON_SENTENCES,
+    LeanFallBackSentence,
+)
 from main.tactic import (
     LetGoalLimit,
     ChooseNEpsilonLimit,
@@ -77,8 +85,9 @@ def extract_variable(state, ident):
 
 
 def lean_goal_to_nat(s, context):
-    # TODO
-    return s
+    sentences_match = COMMON_SENTENCES + [LeanFallBackSentence]
+    match = from_lean(s, context, sentences_match)
+    return match.to_natural()
 
 
 def lean_error_to_nat(s, context):
@@ -87,8 +96,9 @@ def lean_error_to_nat(s, context):
 
 
 def lean_variable_to_nat(s, context):
-    # TODO
-    return s
+    sentences_match = COMMON_SENTENCES + [LeanFallBackSentence]
+    match = from_lean(s, context, sentences_match)
+    return match.to_natural()
 
 
 def nat_hypothesis_to_lean(s, context):
@@ -109,6 +119,8 @@ class Manager:
         self.theorem_name = "anonymous"
         self.proof = []
         self.to_extract = []
+        self.contexts = []
+        self.initial_context = None
 
     def add_hypothesis(self, nat):
         sentences_match = [RealValuedSequences, RealDeclaration, SequenceLimit, ForAll]
@@ -123,6 +135,7 @@ class Manager:
             raise ValueError("Unrecognized goal")
         self.initial_goal = match
         self.context.current_goal = match
+        self.initial_context = deepcopy(self.context)
 
     def ident_hypotheses(self):
         res = []
@@ -156,6 +169,7 @@ class Manager:
             raise ValueError("Unrecognized tactic")
         # TODO get lean response if needed
         self.proof.append({"type": "user", "obj": match})
+        self.contexts.append(deepcopy(self.context))
         self.to_extract.append(match.to_extract())
 
     def to_lean(self, header=True):

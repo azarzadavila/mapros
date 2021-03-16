@@ -483,3 +483,36 @@ class AbsoluteDiff(Sentence):
         if not sentence2:
             return None
         return cls(sentence1, sentence2)
+
+
+COMMON_SENTENCES = [
+    RealValuedSequences,
+    RealDeclaration,
+    SequenceLimit,
+    Inequality,
+    ApplySequence,
+    ForAll,
+    ForAllNatIneqThen,
+    AbsoluteDiff,
+    IdentifierEpsilon,
+    Identifier,
+]
+
+
+class LeanFallBackSentence(Sentence):
+    def __init__(self, sentence):
+        self.sentence = sentence
+
+    def to_lean(self) -> str:
+        return self.sentence
+
+    def to_natural(self, in_math=False) -> str:
+        return "LEAN : " + self.sentence
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        return cls(s)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        return cls(s)
