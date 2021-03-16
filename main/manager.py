@@ -136,14 +136,14 @@ class Manager:
         sentences_match = [RealValuedSequences, RealDeclaration, SequenceLimit, ForAll]
         match = from_natural(nat, self.context, sentences_match)
         if not match:
-            raise ValueError("Unrecognized hypothesis")
+            raise ValueError("Unrecognized hypothesis {}".format(nat))
         self.hypotheses.append(match)
 
     def set_initial_goal(self, nat):
         nat = preprocess(nat)
         match = SequenceLimit.from_natural(nat, self.context)
         if not match:
-            raise ValueError("Unrecognized goal")
+            raise ValueError("Unrecognized goal {}".format(nat))
         self.initial_goal = match
         self.context.current_goal = match
         self.initial_context = deepcopy(self.context)
@@ -178,7 +178,7 @@ class Manager:
         ]
         match = from_natural(nat, self.context, tactics_match)
         if not match:
-            raise ValueError("Unrecognized tactic")
+            raise ValueError("Unrecognized tactic {}".format(nat))
         # TODO get lean response if needed
         self.proof.append({"type": "user", "obj": match})
         self.contexts.append(deepcopy(self.context))
