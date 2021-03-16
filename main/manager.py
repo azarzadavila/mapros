@@ -1,6 +1,7 @@
 import re
 
 from main.context import Context
+from main.language import from_natural
 from main.sentences import RealValuedSequences, RealDeclaration, SequenceLimit, ForAll
 from main.tactic import (
     LetGoalLimit,
@@ -110,13 +111,8 @@ class Manager:
         self.to_extract = []
 
     def add_hypothesis(self, nat):
-        match = RealValuedSequences.from_natural(nat, self.context)
-        if not match:
-            match = RealDeclaration.from_natural(nat, self.context)
-        if not match:
-            match = SequenceLimit.from_natural(nat, self.context)
-        if not match:
-            match = ForAll.from_natural(nat, self.context)
+        sentences_match = [RealValuedSequences, RealDeclaration, SequenceLimit, ForAll]
+        match = from_natural(nat, self.context, sentences_match)
         if not match:
             raise ValueError("Unrecognized hypothesis")
         self.hypotheses.append(match)
@@ -140,7 +136,7 @@ class Manager:
         return res
 
     def add_proof_line(self, nat):
-        possible = [
+        tactics_match = [
             DoAllSubgoals,
             LetGoalLimit,
             ChooseNEpsilonLimit,
@@ -155,11 +151,7 @@ class Manager:
             SplitGoal,
             LinearArithmetic,
         ]
-        i = 0
-        match = None
-        while not match and i < len(possible):
-            match = possible[i].from_natural(nat, self.context)
-            i += 1
+        match = from_natural(nat, self.context, tactics_match)
         if not match:
             raise ValueError("Unrecognized tactic")
         # TODO get lean response if needed

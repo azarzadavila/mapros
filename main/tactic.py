@@ -2,7 +2,7 @@ from abc import ABC
 import re
 from typing import List
 
-from main.language import Language
+from main.language import Language, from_natural, from_lean
 from main.sentences import (
     SequenceLimit,
     IdentifierEpsilon,
@@ -12,55 +12,13 @@ from main.sentences import (
 )
 
 
-def from_natural(s: str, cls, context=None, in_math=False):
-    if cls == LetGoalLimit:
-        match = IdentifierEpsilon.from_natural(s, context, in_math)
-        if not match:
-            match = Identifier.from_natural(s, context, in_math)
-        return match
-    if cls == ChooseNEpsilonLimit:
-        match = IdentifierEpsilon.from_natural(s, context, in_math)
-        if not match:
-            match = Identifier.from_natural(s, context, in_math)
-        return match
-    if cls == ByInequalityProperties:
-        match = Inequality.from_natural(s, context, in_math)
-        return match
-    if cls == BySentenceWith:
-        match = Inequality.from_natural(s, context, in_math)
-        return match
-    if cls == DoAllSubgoals:
-        match = SplitGoal.from_natural(s, context, in_math)
-        return match
-    raise NotImplementedError
-
-
-def from_lean(s: str, cls, context=None):
-    if cls == LetGoalLimit:
-        match = IdentifierEpsilon.from_lean(s)
-        if not match:
-            match = Identifier.from_lean(s, context)
-        return match
-    if cls == ChooseNEpsilonLimit:
-        match = IdentifierEpsilon.from_lean(s, context)
-        if not match:
-            match = Identifier.from_lean(s, context)
-        return match
-    if cls == ByInequalityProperties:
-        match = Inequality.from_lean(s, context)
-        return match
-    if cls == BySentenceWith:
-        match = Inequality.from_lean(s, context)
-        return match
-    if cls == DoAllSubgoals:
-        match = SplitGoal.from_lean(s, context)
-        return match
-    raise NotImplementedError
-
-
 class Tactic(Language, ABC):
     def to_extract(self) -> List:
         raise NotImplementedError
+
+
+def _sentences_match_letgoallimit():
+    return [IdentifierEpsilon, Identifier]
 
 
 class LetGoalLimit(Tactic):
@@ -81,7 +39,9 @@ class LetGoalLimit(Tactic):
             return None
         if not isinstance(context.current_goal, SequenceLimit):
             return None
-        ident = from_natural(match[1], cls, context, in_math)
+        ident = from_natural(
+            match[1], context, _sentences_match_letgoallimit(), in_math
+        )
         if not ident:
             return None
         hyp = context.next_anonymous()
@@ -95,7 +55,7 @@ class LetGoalLimit(Tactic):
             return None
         if not isinstance(context.current_goal, SequenceLimit):
             return None
-        ident = from_lean(match[1], cls, context)
+        ident = from_lean(match[1], context, _sentences_match_letgoallimit())
         if not ident:
             return None
         hyp = match[2]
@@ -104,6 +64,10 @@ class LetGoalLimit(Tactic):
 
     def to_extract(self) -> List:
         return [self.hyp]
+
+
+def _sentences_match_choosenepsilonlimit():
+    return [IdentifierEpsilon, Identifier]
 
 
 class ChooseNEpsilonLimit(Tactic):
@@ -148,7 +112,9 @@ class ChooseNEpsilonLimit(Tactic):
             return None
         n_chosen = match[1]
         limit_def = match[2]
-        eps = from_natural(match[3], cls, context, in_math)
+        eps = from_natural(
+            match[3], context, _sentences_match_choosenepsilonlimit(), in_math
+        )
         hyp_eps = context.get(eps.to_lean()).get("associate")
         if not hyp_eps:
             return None
@@ -162,7 +128,7 @@ class ChooseNEpsilonLimit(Tactic):
         if not match:
             return None
         limit_def = match[1]
-        eps = from_lean(match[2], cls, context)
+        eps = from_lean(match[2], context, _sentences_match_choosenepsilonlimit())
         hyp_eps = match[3]
         n_chosen = match[4]
         hyp_n = match[5]
@@ -232,6 +198,10 @@ class Use(Tactic):
         return []
 
 
+def _sentences_match_byinequalityproperties():
+    return [Inequality]
+
+
 class ByInequalityProperties(Tactic):
     def __init__(self, ident, sentence):
         self.ident = ident
@@ -254,7 +224,9 @@ class ByInequalityProperties(Tactic):
         match = re.search(r"By inequality properties, (.+)", s)
         if not match:
             return None
-        sentence = from_natural(match[1], cls, context, in_math)
+        sentence = from_natural(
+            match[1], context, _sentences_match_byinequalityproperties(), in_math
+        )
         if not sentence:
             return None
         ident = context.next_anonymous()
@@ -265,7 +237,9 @@ class ByInequalityProperties(Tactic):
         match = re.search(r"have (\w+) : (.+) := by obvious_ineq", s)
         if not match:
             return None
-        sentence = from_lean(match[2], cls, context)
+        sentence = from_lean(
+            match[2], context, _sentences_match_byinequalityproperties()
+        )
         if not sentence:
             return None
         return cls(match[1], sentence)
@@ -311,6 +285,10 @@ class LetNInequality(Tactic):
         return [self.hyp]
 
 
+def _sentences_match_bysentencewith():
+    return [Inequality]
+
+
 class BySentenceWith(Tactic):
     def __init__(self, ident, sentence, hyp, with_w):
         self.ident = ident
@@ -338,7 +316,7 @@ class BySentenceWith(Tactic):
         match = re.search(r"(.+) by (\w+) with (\w+)", s)
         if not match:
             return None
-        sentence = from_natural(match[1], cls, context)
+        sentence = from_natural(match[1], context, _sentences_match_bysentencewith())
         if not sentence:
             return None
         ident = context.next_anonymous()
@@ -349,7 +327,7 @@ class BySentenceWith(Tactic):
         match = re.search(r"have (\w+) : (.+) := (\w+) (\w+)", s)
         if not match:
             return None
-        sentence = from_lean(match[2], cls, context)
+        sentence = from_lean(match[2], context, _sentences_match_bysentencewith())
         if not sentence:
             return None
         return cls(match[1], sentence, match[3], match[4])
@@ -492,6 +470,10 @@ class SplitGoal(Tactic):
         return []
 
 
+def _sentences_match_doallsubgoals():
+    return [SplitGoal]
+
+
 class DoAllSubgoals(Tactic):
     def __init__(self, tactic):
         self.tactic = tactic
@@ -507,7 +489,7 @@ class DoAllSubgoals(Tactic):
         match = re.search(r"(.+) and do on all subgoals", s)
         if not match:
             return None
-        tactic = from_natural(match[1], cls, context)
+        tactic = from_natural(match[1], context, _sentences_match_doallsubgoals())
         if not tactic:
             return None
         return cls(tactic)
@@ -517,7 +499,7 @@ class DoAllSubgoals(Tactic):
         match = re.search(r"(.+);", s)
         if not match:
             return None
-        tactic = from_lean(match[1], cls, context)
+        tactic = from_lean(match[1], context, _sentences_match_doallsubgoals())
         if not tactic:
             return None
         return cls(tactic)

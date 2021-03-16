@@ -1,7 +1,7 @@
 from abc import ABC
 import re
 
-from main.language import Language
+from main.language import Language, from_lean, from_natural
 
 from enum import Enum, auto
 
@@ -40,48 +40,6 @@ MAP_NAT_INEQ = {
     "<": InequalityType.LT,
     r"\leq": InequalityType.LE,
 }
-
-
-def from_natural(s: str, cls, context=None, in_math=False):
-    if cls == ForAll:
-        match = Inequality.from_natural(s, context, in_math)
-        return match
-    if cls == Inequality:
-        match = AbsoluteDiff.from_natural(s, context, in_math)
-        if not match:
-            match = ApplySequence.from_natural(s, context, in_math)
-        if not match:
-            match = IdentifierEpsilon.from_natural(s, context, in_math)
-        if not match:
-            match = Identifier.from_natural(s, context, in_math)
-        return match
-    if cls == AbsoluteDiff:
-        match = ApplySequence.from_natural(s, context, in_math)
-        if not match:
-            match = Identifier.from_natural(s, context, in_math)
-        return match
-    raise NotImplementedError
-
-
-def from_lean(s: str, cls, context=None):
-    if cls == ForAll:
-        match = Inequality.from_lean(s)
-        return match
-    if cls == Inequality:
-        match = AbsoluteDiff.from_lean(s, context)
-        if not match:
-            match = ApplySequence.from_lean(s, context)
-        if not match:
-            match = IdentifierEpsilon.from_lean(s, context)
-        if not match:
-            match = Identifier.from_lean(s)
-        return match
-    if cls == AbsoluteDiff:
-        match = ApplySequence.from_lean(s, context)
-        if not match:
-            match = Identifier.from_lean(s, context)
-        return match
-    raise NotImplementedError
 
 
 class Sentence(Language, ABC):
@@ -264,6 +222,10 @@ class SequenceLimit(Sentence):
         return cls(match[1], match[2])
 
 
+def _sentences_match_inequality():
+    return [AbsoluteDiff, ApplySequence, IdentifierEpsilon, Identifier]
+
+
 class Inequality(Sentence):
     def __init__(self, ident1, ineq_type, ident2):
         self.ident1 = ident1
@@ -303,10 +265,10 @@ class Inequality(Sentence):
             match = re.search(r"(.+) (" + ineq_symbols + r") (.+)", s)
         if not match:
             return None
-        ident1 = from_natural(match[1], Inequality, context, True)
+        ident1 = from_natural(match[1], context, _sentences_match_inequality(), True)
         if not ident1:
             return None
-        ident2 = from_natural(match[3], Inequality, context, True)
+        ident2 = from_natural(match[3], context, _sentences_match_inequality(), True)
         if not ident2:
             return None
         return cls(ident1, MAP_NAT_INEQ[match[2]], ident2)
@@ -317,13 +279,25 @@ class Inequality(Sentence):
         match = re.search(r"(.+) (" + ineq_symbols + r") (.+)", s)
         if not match:
             return None
-        ident1 = from_lean(match[1], Inequality, context)
+        ident1 = from_lean(match[1], context, _sentences_match_inequality())
         if not ident1:
             return None
-        ident2 = from_lean(match[3], Inequality, context)
+        ident2 = from_lean(match[3], context, _sentences_match_inequality())
         if not ident2:
             return None
         return cls(ident1, MAP_LEAN_INEQ[match[2]], ident2)
+
+
+def _apply_sequence_if(match, cls, context):
+    if not match:
+        return None
+    ident = match[1]
+    point = match[2]
+    if context.get(ident):
+        if "class" in context.get(ident):
+            if "sequence" in context.get(ident)["class"]:
+                return cls(ident, point)
+    return None
 
 
 class ApplySequence(Sentence):
@@ -350,28 +324,16 @@ class ApplySequence(Sentence):
             match = re.search(r"\$(\w+)_(\w+)\$", s)
         else:
             match = re.search(r"(\w+)_(\w+)", s)
-        if not match:
-            return None
-        ident = match[1]
-        point = match[2]
-        if context.get(ident):
-            if "class" in context.get(ident):
-                if "sequence" in context.get(ident)["class"]:
-                    return cls(ident, point)
-        return None
+        return _apply_sequence_if(match, cls, context)
 
     @classmethod
     def from_lean(cls, s: str, context=None):
         match = re.search(r"(\w+) (\w+)", s)
-        if not match:
-            return None
-        ident = match[1]
-        point = match[2]
-        if context.get(ident):
-            if "class" in context.get(ident):
-                if "sequence" in context.get(ident)["class"]:
-                    return cls(ident, point)
-        return None
+        return _apply_sequence_if(match, cls, context)
+
+
+def _sentences_match_forall():
+    return [Inequality]
 
 
 class ForAll(Sentence):
@@ -399,7 +361,7 @@ class ForAll(Sentence):
             match = re.search(r"\\forall (\w+) : (.+)", s)
         if not match:
             return None
-        sentence = from_natural(match[2], cls, context, True)
+        sentence = from_natural(match[2], context, _sentences_match_forall(), True)
         if not sentence:
             return None
         return cls(match[1], sentence)
@@ -409,7 +371,7 @@ class ForAll(Sentence):
         match = re.search(r"∀ (\w+), (.+)", s)
         if not match:
             return None
-        sentence = from_lean(match[2], cls, context)
+        sentence = from_lean(match[2], context, _sentences_match_forall())
         if not sentence:
             return None
         return cls(match[1], sentence)
@@ -464,6 +426,10 @@ class ForAllNatIneqThen(Sentence):
         return cls(ident, ineq, sentence)
 
 
+def _sentences_match_absolutediff():
+    return [ApplySequence, Identifier]
+
+
 class AbsoluteDiff(Sentence):
     def __init__(self, sentence1, sentence2):
         self.sentence1 = sentence1
@@ -493,10 +459,14 @@ class AbsoluteDiff(Sentence):
             match = re.search(r"\|(.+) - (.+)\|", s)
         if not match:
             return None
-        sentence1 = from_natural(match[1], cls, context, True)
+        sentence1 = from_natural(
+            match[1], context, _sentences_match_absolutediff(), True
+        )
         if not sentence1:
             return None
-        sentence2 = from_natural(match[2], cls, context, True)
+        sentence2 = from_natural(
+            match[2], context, _sentences_match_absolutediff(), True
+        )
         if not sentence2:
             return None
         return cls(sentence1, sentence2)
@@ -506,10 +476,10 @@ class AbsoluteDiff(Sentence):
         match = re.search(r"\|(.+) - (.+)\|", s)
         if not match:
             return None
-        sentence1 = from_lean(match[1], cls, context)
+        sentence1 = from_lean(match[1], context, _sentences_match_absolutediff())
         if not sentence1:
             return None
-        sentence2 = from_lean(match[2], cls, context)
+        sentence2 = from_lean(match[2], context, _sentences_match_absolutediff())
         if not sentence2:
             return None
         return cls(sentence1, sentence2)
