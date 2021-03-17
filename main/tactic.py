@@ -161,7 +161,7 @@ class LetMax(Tactic):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         match = re.fullmatch(
-            r"Let \$(\w+) = \\?max ?(?:\\left)?\((\w+), (\w+) ?(?:\\right)?\)\$", s
+            r"Let \$(\w+) ?= ?\\?max ?(?:\\left)?\((\w+), (\w+) ?(?:\\right)?\)\$", s
         )
         if not match:
             return None
