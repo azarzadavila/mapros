@@ -422,7 +422,11 @@ class AbsoluteValueIneqProperty(Tactic):
         return cls(idents)
 
     def to_extract(self) -> List:
-        return []
+        res = []
+        for ident in self.identifiers:
+            if ident != "goal":
+                res.append(ident)
+        return res
 
 
 class Cases(Tactic):
@@ -450,7 +454,7 @@ class Cases(Tactic):
         return cls(match[1])
 
     def to_extract(self) -> List:
-        return []
+        return [self.ident + "_left", self.ident + "_right"]
 
 
 class SplitGoal(Tactic):
