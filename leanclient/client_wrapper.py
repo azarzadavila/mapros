@@ -29,11 +29,12 @@ async def states_lines_async(path, lines):
     async with trio.open_nursery() as nursery:
         server = TrioLeanServer(nursery)
         await server.start()
-        await server.full_sync(path)
-        err = get_error(server.messages)
+        with trio.move_on_after(10):
+            await server.full_sync(path)
         for i in range(len(lines)):
             after = await server.state(path, lines[i], len(tot_lines[lines[i] - 1]))
             res.append(after)
+        err = get_error(server.messages)
         server.kill()
         nursery.cancel_scope.cancel()
     return res, err

@@ -76,9 +76,8 @@ class TrioLeanServer:
                     print(f'Received {resp}')
                 if isinstance(resp, CurrentTasksResponse):
                     self.current_tasks = resp.tasks
-                    if not resp.is_running:
-                        self.is_fully_ready.set()
                 elif isinstance(resp, AllMessagesResponse):
+                    self.is_fully_ready.set()
                     self.messages = resp.msgs
                 if hasattr(resp, 'seq_num'):
                     self.responses[resp.seq_num] = resp
@@ -88,7 +87,6 @@ class TrioLeanServer:
         """Fully compile a Lean file before returning."""
         # Waiting for the response is not enough, so we prepare another event
         await self.send(SyncRequest(filename, content))
-        self.is_fully_ready = trio.Event()
         await self.is_fully_ready.wait()
 
     async def state(self, filename, line, col) -> str:
