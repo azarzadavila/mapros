@@ -444,11 +444,11 @@ class AbsoluteDiff(Sentence):
         s = ""
         if not in_math:
             s += "$"
-        s += "|"
+        s += "\\left|"
         s += self.sentence1.to_natural(True)
         s += " - "
         s += self.sentence2.to_natural(True)
-        s += "|"
+        s += " \\right|"
         if not in_math:
             s += "$"
         return s
@@ -456,19 +456,20 @@ class AbsoluteDiff(Sentence):
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
         if not in_math:
-            match = re.fullmatch(r"\$\|(.+) - (.+)\|\$", s)
+            match = re.fullmatch(r"\$ ?(?:\\left)?\| ?(.+) ?- ?(.+)\|\$", s)
         else:
-            match = re.fullmatch(r"\|(.+) - (.+)\|", s)
+            match = re.fullmatch(r"(?:\\left)?\| ?(.+) ?- ?(.+)\|", s)
         if not match:
             return None
-        sentence1 = from_natural(
-            match[1], context, _sentences_match_absolutediff(), True
-        )
+        match1 = match[1].strip()
+        sentence1 = from_natural(match1, context, _sentences_match_absolutediff(), True)
         if not sentence1:
             return None
-        sentence2 = from_natural(
-            match[2], context, _sentences_match_absolutediff(), True
-        )
+        match2 = match[2].strip()
+        match2_match = re.fullmatch(r"(.+) \\right", match2)
+        if match2_match:
+            match2 = match2_match[1]
+        sentence2 = from_natural(match2, context, _sentences_match_absolutediff(), True)
         if not sentence2:
             return None
         return cls(sentence1, sentence2)

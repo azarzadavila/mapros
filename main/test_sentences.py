@@ -66,12 +66,12 @@ class ForAllTest(TestCase):
 
 class AbsoluteDiffTest(TestCase):
     def test_basic(self):
-        natural = r"$|a - b|$"
+        natural = r"$\left|a - b \right|$"
         lean = "|a - b|"
         test_bijective(self, AbsoluteDiff, natural, lean)
 
     def test_sequence(self):
-        natural = r"$|a_n - b_n|$"
+        natural = r"$\left|a_n - b_n \right|$"
         lean = "|a n - b n|"
         context = Context()
         context.add("a", "sequence")
@@ -79,12 +79,12 @@ class AbsoluteDiffTest(TestCase):
         test_bijective(self, AbsoluteDiff, natural, lean, context)
 
     def test_inequality(self):
-        natural = r"$|a - b| \leq n$"
+        natural = r"$\left|a - b \right| \leq n$"
         lean = "|a - b| ≤ n"
         test_bijective(self, Inequality, natural, lean)
 
     def test_inequality_sequence(self):
-        natural = r"$|a_n - b_n| \leq n$"
+        natural = r"$\left|a_n - b_n \right| \leq n$"
         lean = r"|a n - b n| ≤ n"
         context = Context()
         context.add("a", "sequence")
