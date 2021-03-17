@@ -149,12 +149,20 @@ class LetMax(Tactic):
 
     def to_natural(self, in_math=False) -> str:
         return (
-            "Let $" + self.ident + " = max(" + self.ident1 + ", " + self.ident2 + ")$"
+            "Let $"
+            + self.ident
+            + " = \\max\\left("
+            + self.ident1
+            + ", "
+            + self.ident2
+            + "\\right)$"
         )
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        match = re.fullmatch(r"Let \$(\w+) = max\((\w+), (\w+)\)\$", s)
+        match = re.fullmatch(
+            r"Let \$(\w+) = \\?max ?(?:\\left)?\((\w+), (\w+) ?(?:\\right)?\)\$", s
+        )
         if not match:
             return None
         return cls(match[1], match[2], match[3])

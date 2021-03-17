@@ -65,7 +65,7 @@ class ChooseNEpsilonLimitTest(TestCase):
 
 class LetMaxTest(TestCase):
     def test_basic(self):
-        natural = "Let $N = max(N_a, N_c)$"
+        natural = "Let $N = \\max\\left(N_a, N_c\\right)$"
         lean = "let N := max N_a N_c"
         test_bijective(self, LetMax, natural, lean)
 
