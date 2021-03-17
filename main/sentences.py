@@ -37,8 +37,10 @@ MAP_INEQ_NAT = {
 MAP_NAT_INEQ = {
     ">": InequalityType.GT,
     r"\geq": InequalityType.GE,
+    r"\ge": InequalityType.GE,
     "<": InequalityType.LT,
     r"\leq": InequalityType.LE,
+    r"\le": InequalityType.LE,
 }
 
 
@@ -258,7 +260,7 @@ class Inequality(Sentence):
 
     @classmethod
     def from_natural(cls, s: str, context=None, in_math=False):
-        ineq_symbols = r">|\\geq|<|\\leq"
+        ineq_symbols = r">|\\geq|\\ge|<|\\leq|\\le"
         if not in_math:
             match = re.fullmatch(r"\$(.+) (" + ineq_symbols + r") (.+)\$", s)
         else:
