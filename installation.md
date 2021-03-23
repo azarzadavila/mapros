@@ -39,11 +39,9 @@ In order to run the server on a local machine, the two files *local_settings.py*
 Then, an environment variable **DATABASE_URL** must be set with the content of *variables.txt*.
 
 These two previous steps can be done by running :
-* on windows : `run_local.bat set`
 * on linux or mac : `run_local.sh set`
 
 and to restore the file after that :
-* on windows : `run_local.bat clean`
 * on linux or mac : `run_local.sh clean`
 
 One can then first apply migrations and then run the server :
@@ -51,3 +49,5 @@ One can then first apply migrations and then run the server :
 python manage.py migrate
 python manage.py runserver
 ```
+
+On windows the server can be directly started by running **run_local.bat**.
