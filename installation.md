@@ -30,7 +30,7 @@ After this, a project must be created at the root of this folder with name *lean
 `leanproject new lean-project`
 
 ## Frontend
-Specific on how to install the frontend are available at the frontend [repository](https://github.com/azarzadavila/mapros-frontend/installation.md).
+Specific on how to install the frontend are available at the frontend [repository](https://github.com/azarzadavila/mapros-frontend/blob/main/installation.md).
 
 ## Running the servers
 Two setting files are available one for a local configuration and another for a remote server.
