@@ -45,3 +45,4 @@ urllib3==1.25.10
 whitenoise==5.2.0
 lark-parser
 djangorestframework-recursive
+trio
