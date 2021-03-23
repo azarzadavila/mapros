@@ -9,7 +9,8 @@ import json
 # Create your views here.
 from leanserver.serializers import SyncSerializer, StateAtSerializer
 
-server = pexpect.spawn("lean --server")
+# server = pexpect.spawn("lean --server")
+server = None
 
 
 def write_in(s, path="test.lean"):
