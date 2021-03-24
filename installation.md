@@ -38,16 +38,15 @@ By default, the remote server settings are set.
 In order to run the server on a local machine, the two files *local_settings.py* and *mapros/settings* must be swapped.
 Then, an environment variable **DATABASE_URL** must be set with the content of *variables.txt*.
 
-These two previous steps can be done by running :
-* on linux or mac : `run_local.sh set`
+These two previous steps can be done by running on a bash shell
+(in windows by using for example git bash which is suggested in the lean installation) :
+`run_local.sh set`
 
 and to restore the file after that :
-* on linux or mac : `run_local.sh clean`
+`run_local.sh clean`
 
 One can then first apply migrations and then run the server :
 ```bash
 python manage.py migrate
 python manage.py runserver
 ```
-
-On windows the server can be directly started by running **run_local.bat**.
