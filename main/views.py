@@ -10,7 +10,8 @@ from main.manager import (
     extract_variable,
     extract_error,
     lean_variable_to_nat,
-    lean_goal_to_nat, is_accomplished,
+    lean_goal_to_nat,
+    is_accomplished,
 )
 from main.serializers import AskStateSerializer
 
@@ -27,7 +28,7 @@ def add_all_manager(name, goal, hypotheses, proofs):
 
 
 def write_to_lean(manager):
-    file = open(client_wrapper.LEAN_DIR_SRC + "result.lean", "w")
+    file = open(client_wrapper.LEAN_DIR_SRC + "result.lean", "w", encoding="utf-8")
     try:
         text, lines = manager.to_lean()
         file.write(text)

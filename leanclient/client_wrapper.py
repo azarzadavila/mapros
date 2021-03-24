@@ -24,7 +24,7 @@ def get_error(messages):
 
 
 async def states_lines_async(path, lines):
-    tot_lines = Path(path).read_text().split("\n")
+    tot_lines = Path(path).read_text(encoding="utf-8").split("\n")
     res = []
     async with trio.open_nursery() as nursery:
         server = TrioLeanServer(nursery)
