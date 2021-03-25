@@ -46,8 +46,6 @@ INSTALLED_APPS = [
     "drf_yasg",
     "authentification.apps.AuthentificationConfig",
     "corsheaders",
-    "formal",
-    "leanserver",
     "main.apps.MainConfig",
     "leanclient.apps.LeanclientConfig",
 ]
