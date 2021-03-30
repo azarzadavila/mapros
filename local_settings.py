@@ -117,6 +117,7 @@ REST_FRAMEWORK = {
 
 TOKEN_EXPIRED_AFTER_SECONDS = 86400
 
+EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"
 
 # Internationalization
 # https://docs.djangoproject.com/en/3.0/topics/i18n/
@@ -138,3 +139,4 @@ USE_TZ = True
 STATIC_URL = "/static/"
 django_heroku.settings(locals())
 del DATABASES["default"]["OPTIONS"]["sslmode"]
+CURRENT_URL = "http://localhost:8000/"
