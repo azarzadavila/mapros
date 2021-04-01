@@ -2,6 +2,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from rest_framework import status
+from rest_framework import generics
 
 from leanclient import client_wrapper
 from main.manager import (
@@ -13,7 +14,8 @@ from main.manager import (
     lean_goal_to_nat,
     is_accomplished,
 )
-from main.serializers import AskStateSerializer
+from main.models import TheoremStatement
+from main.serializers import AskStateSerializer, TheoremStatementSerializer
 
 
 def add_all_manager(name, goal, hypotheses, proofs):
@@ -114,3 +116,13 @@ class AskState(APIView):
             }
             return Response(res, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class OwnedTheoremStatementsViewSet(generics.ListAPIView):
+    queryset = TheoremStatement.objects.all()
+    serializer_class = TheoremStatementSerializer
+
+    def list(self, request):
+        queryset = self.get_queryset().filter(owner=request.user)
+        serializer = TheoremStatementSerializer(queryset, many=True)
+        return Response(serializer.data)
