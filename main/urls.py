@@ -14,4 +14,5 @@ urlpatterns = [
         views.ListUserNotAssignedStatementViewSet.as_view(),
     ),
     path("send_statement/", views.SendStatement.as_view()),
+    path("theorem_proof/<int:pk>/", views.ProofViewSet.as_view()),
 ]

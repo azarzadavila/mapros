@@ -21,6 +21,7 @@ from main.serializers import (
     TheoremStatementSerializer,
     UserSerializer,
     CreateProofForTheoremUserSerializer,
+    ProofForTheoremUserSerializer,
 )
 
 
@@ -170,3 +171,10 @@ class SendStatement(APIView):
                 )
             return Response(status=status.HTTP_200_OK)
         return Response(serialiazer.errors, status=status.HTTP_400_BAD_REQUEST)
+
+
+class ProofViewSet(generics.RetrieveUpdateAPIView):
+    serializer_class = ProofForTheoremUserSerializer
+
+    def get_queryset(self):
+        return ProofForTheoremUser.objects.filter(user=self.request.user)

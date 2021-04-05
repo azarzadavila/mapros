@@ -19,11 +19,12 @@ class TheoremStatementSerializer(serializers.ModelSerializer):
 
 
 class ProofForTheoremUserSerializer(serializers.ModelSerializer):
-    theorem_statement = TheoremStatementSerializer()
+    theorem_statement = TheoremStatementSerializer(read_only=True)
 
     class Meta:
         model = ProofForTheoremUser
-        fields = ["user", "theorem_statement", "proof"]
+        fields = ["user", "proof", "id", "theorem_statement"]
+        read_only_fields = ["id", "user", "theorem_statement"]
 
 
 class UserSerializer(serializers.ModelSerializer):
