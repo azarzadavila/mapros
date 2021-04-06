@@ -23,6 +23,7 @@ from main.serializers import (
     CreateProofForTheoremUserSerializer,
     ProofForTheoremUserSerializer,
     LightProofForTheoremUserSerializer,
+    ListFormatProofForTheoremUserSerializer,
 )
 
 
@@ -157,6 +158,22 @@ class ListUserNotAssignedStatementViewSet(APIView):
         users = User.objects.all().difference(users_in)
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+class ListUsersStatementViewSet(generics.ListAPIView):
+    serializer_class = ListFormatProofForTheoremUserSerializer
+
+    def get_queryset(self):
+        return ProofForTheoremUser.objects.filter(
+            theorem_statement__owner=self.request.user
+        )
+
+
+class DeleteUserStatementViewSet(generics.DestroyAPIView):
+    def get_queryset(self):
+        return ProofForTheoremUser.objects.filter(
+            theorem_statement__owner=self.request.user
+        )
 
 
 class SendStatement(APIView):

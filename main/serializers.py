@@ -66,3 +66,11 @@ class LightProofForTheoremUserSerializer(serializers.ModelSerializer):
     class Meta:
         model = ProofForTheoremUser
         fields = ["id", "theorem_statement", "user"]
+
+
+class ListFormatProofForTheoremUserSerializer(serializers.ModelSerializer):
+    user = UserSerializer()
+
+    class Meta:
+        model = ProofForTheoremUser
+        fields = ["id", "user", "theorem_statement"]
