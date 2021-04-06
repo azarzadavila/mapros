@@ -15,4 +15,5 @@ urlpatterns = [
     ),
     path("send_statement/", views.SendStatement.as_view()),
     path("theorem_proof/<int:pk>/", views.ProofViewSet.as_view()),
+    path("list_theorem_proofs/", views.ListTheoremProofsViewSet.as_view()),
 ]

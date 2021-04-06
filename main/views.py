@@ -22,6 +22,7 @@ from main.serializers import (
     UserSerializer,
     CreateProofForTheoremUserSerializer,
     ProofForTheoremUserSerializer,
+    LightProofForTheoremUserSerializer,
 )
 
 
@@ -175,6 +176,13 @@ class SendStatement(APIView):
 
 class ProofViewSet(generics.RetrieveUpdateAPIView):
     serializer_class = ProofForTheoremUserSerializer
+
+    def get_queryset(self):
+        return ProofForTheoremUser.objects.filter(user=self.request.user)
+
+
+class ListTheoremProofsViewSet(generics.ListAPIView):
+    serializer_class = LightProofForTheoremUserSerializer
 
     def get_queryset(self):
         return ProofForTheoremUser.objects.filter(user=self.request.user)

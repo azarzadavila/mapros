@@ -52,3 +52,17 @@ class CreateProofForTheoremUserSerializer(serializers.Serializer):
                 continue
             raise serializers.ValidationError("theorem statement already sent")
         return attrs
+
+
+class LightTheoremStatementSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TheoremStatement
+        fields = ["id", "name", "owner"]
+
+
+class LightProofForTheoremUserSerializer(serializers.ModelSerializer):
+    theorem_statement = LightTheoremStatementSerializer()
+
+    class Meta:
+        model = ProofForTheoremUser
+        fields = ["id", "theorem_statement", "user"]
