@@ -4,6 +4,7 @@ from django.test import TestCase
 
 import leanclient.client_wrapper as client_wrapper
 from main.manager import Manager, extract_goal, extract_error, extract_variable
+from main.views import write_to_lean
 
 sandwich_hyp = [
     "$a_n, b_n, c_n$ are real-valued sequences",
@@ -141,3 +142,43 @@ but is expected to have type
         state = states[0]
         expected = "ℕ → ℝ"
         self.assertEqual(extract_variable(state, "b"), expected)
+
+
+sum_limit_hypotheses = [
+    r"$a_n, b_n$ are real-valued sequences",
+    r"$l_a \in \mathbb{R}$",
+    r"$l_b \in \mathbb{R}$",
+    r"$a_n \rightarrow l_a$",
+    r"$b_n \rightarrow l_b$",
+]
+sum_limit_goal = r"$(a+b)_n \rightarrow (l_a + l_b)$"
+sum_limit_proof = [
+    r"Let $\epsilon$",
+    r"By inequality properties, $\frac{\epsilon}{3} > 0$",
+    r"Let's choose $N_a$ such that H1 uses $\frac{\epsilon}{3}$ (with A2)",
+    r"Let's choose $N_b$ such that H2 uses $\frac{\epsilon}{3}$ (with A2)",
+    r"We claim $N_a + N_b$ works",
+    r"Let $n$",
+    r"By inequality properties, $n \geq N_a$",
+    r"By inequality properties, $n \geq N_b$",
+    r"Let's choose n in A3",
+    r"By A8 with A6",
+    r"Let's choose n in A4",
+    r"By A10 with A7",
+    r"Let's use absolute value inequality property on A9 A11 and on goal",
+    r"$(a+b)_n = a_n + b_n$ by definition of addition for functions",
+    r"Let's split the goal and do on all subgoals",
+    r"By inequality properties",
+]
+
+
+class SumLimitTest(TestCase):
+    def test_basic(self):
+        manager = Manager()
+        manager.theorem_name = "sum_limit"
+        for hyp in sum_limit_hypotheses:
+            manager.add_hypothesis(hyp)
+        manager.set_initial_goal(sum_limit_goal)
+        for proof in sum_limit_proof:
+            manager.add_proof_line(proof)
+        write_to_lean(manager)

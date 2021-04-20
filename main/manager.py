@@ -11,6 +11,7 @@ from main.sentences import (
     ForAll,
     COMMON_SENTENCES,
     LeanFallBackSentence,
+    ComposedSequenceLimit,
 )
 from main.tactic import (
     LetGoalLimit,
@@ -26,6 +27,10 @@ from main.tactic import (
     SplitGoal,
     DoAllSubgoals,
     LinearArithmetic,
+    ChooseNEpsilonLimitWith,
+    ByWith,
+    ByDefinitionOfAddFunction,
+    GoalInequalityProperties,
 )
 
 HEADER = r"""import data.real.basic
@@ -141,7 +146,8 @@ class Manager:
 
     def set_initial_goal(self, nat):
         nat = preprocess(nat)
-        match = SequenceLimit.from_natural(nat, self.context)
+        goals_match = [SequenceLimit, ComposedSequenceLimit]
+        match = from_natural(nat, self.context, goals_match)
         if not match:
             raise ValueError("Unrecognized goal {}".format(nat))
         self.initial_goal = match
@@ -164,6 +170,7 @@ class Manager:
         tactics_match = [
             DoAllSubgoals,
             LetGoalLimit,
+            ChooseNEpsilonLimitWith,
             ChooseNEpsilonLimit,
             LetMax,
             Use,
@@ -175,6 +182,9 @@ class Manager:
             Cases,
             SplitGoal,
             LinearArithmetic,
+            ByWith,
+            ByDefinitionOfAddFunction,
+            GoalInequalityProperties,
         ]
         match = from_natural(nat, self.context, tactics_match)
         if not match:

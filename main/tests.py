@@ -6,6 +6,7 @@ from rest_framework.test import APITestCase
 username = "testuser"
 password = "testpass"
 url_theorem_statements = "/theorem_statements/"
+url_auth = "/auth/"
 
 
 class AuthentificationTest(APITestCase):
@@ -40,4 +41,3 @@ class AuthentificationTest(APITestCase):
         __incorrect({})
         __incorrect({"username": "a"})
         __incorrect({"password": "a"})
-
