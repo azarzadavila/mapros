@@ -224,6 +224,50 @@ class SequenceLimit(Sentence):
         return cls(match[1], match[2])
 
 
+class ComposedSequenceLimit(Sentence):
+    def __init__(self, seq, lim):
+        self.seq = seq
+        self.lim = lim
+
+    def to_lean(self) -> str:
+        return "is_limit (" + self.seq + ") " + "(" + self.lim + ")"
+
+    def to_natural(self, in_math=False) -> str:
+        s = ""
+        if not in_math:
+            s += "$"
+        s += "(" + self.seq + ")_n " + r"\rightarrow (" + self.lim + ")"
+        if not in_math:
+            s += "$"
+        return s
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.fullmatch(
+                r"\$(?:\\left)? *\((.+)\)_n *\\rightarrow *(?:\\left)? *\((.+)\)\$", s
+            )
+        else:
+            match = re.fullmatch(
+                r"(?:\\left)? *\((.+)\)_n *\\rightarrow *(?:\\left)? *\((.+)\)", s
+            )
+        if not match:
+            return None
+        match1 = match[1].strip()
+        match2 = match[2].strip()
+        match2_match = re.fullmatch(r"(.+) *\\right", match2)
+        if match2_match:
+            match2 = match2_match[1]
+        return cls(match1, match2)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.fullmatch(r"is_limit \((.+)\) \((.+)\)", s)
+        if not match:
+            return None
+        return cls(match[1], match[2])
+
+
 def _sentences_match_inequality():
     return [AbsoluteDiff, ApplySequence, IdentifierEpsilon, Identifier]
 

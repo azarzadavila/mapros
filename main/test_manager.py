@@ -141,3 +141,25 @@ but is expected to have type
         state = states[0]
         expected = "ℕ → ℝ"
         self.assertEqual(extract_variable(state, "b"), expected)
+
+
+sum_limit_hypotheses = [
+    r"$a_n, b_n$ are real-valued sequences",
+    r"$l_a \in \mathbb{R}$",
+    r"$l_b \in \mathbb{R}$",
+    r"$a_n \rightarrow l_a$",
+    r"$b_n \rightarrow l_b$",
+]
+sum_limit_goal = r"$(a+b)_n \rightarrow (l_a + l_b)$"
+sum_limit_proof = [r"Let $\epsilon$"]
+
+
+class SumLimitTest(TestCase):
+    def basic_test(self):
+        manager = Manager()
+        manager.theorem_name = "sum_limit"
+        for hyp in sum_limit_hypotheses:
+            manager.add_hypothesis(hyp)
+        manager.set_initial_goal(sum_limit_goal)
+        for proof in sum_limit_proof:
+            manager.add_proof_line(proof)
