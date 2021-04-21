@@ -4,6 +4,7 @@ from django.test import TestCase
 
 import leanclient.client_wrapper as client_wrapper
 from main.manager import Manager, extract_goal, extract_error, extract_variable
+from main.views import write_to_lean
 
 sandwich_hyp = [
     "$a_n, b_n, c_n$ are real-valued sequences",
@@ -151,11 +152,16 @@ sum_limit_hypotheses = [
     r"$b_n \rightarrow l_b$",
 ]
 sum_limit_goal = r"$(a+b)_n \rightarrow (l_a + l_b)$"
-sum_limit_proof = [r"Let $\epsilon$"]
+sum_limit_proof = [
+    r"Let $\epsilon$",
+    r"By inequality properties, $\frac{\epsilon}{3} > 0$",
+    r"Let's choose $N_a$ such that H1 uses $\frac{\epsilon}{3}$ (with A2)",
+    r"Let's choose $N_b$ such that H2 uses $\frac{\epsilon}{3}$ (with A2)",
+]
 
 
 class SumLimitTest(TestCase):
-    def basic_test(self):
+    def test_basic(self):
         manager = Manager()
         manager.theorem_name = "sum_limit"
         for hyp in sum_limit_hypotheses:
@@ -163,3 +169,4 @@ class SumLimitTest(TestCase):
         manager.set_initial_goal(sum_limit_goal)
         for proof in sum_limit_proof:
             manager.add_proof_line(proof)
+        write_to_lean(manager)

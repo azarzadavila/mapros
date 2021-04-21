@@ -27,6 +27,7 @@ from main.tactic import (
     SplitGoal,
     DoAllSubgoals,
     LinearArithmetic,
+    ChooseNEpsilonLimitWith,
 )
 
 HEADER = r"""import data.real.basic
@@ -166,6 +167,7 @@ class Manager:
         tactics_match = [
             DoAllSubgoals,
             LetGoalLimit,
+            ChooseNEpsilonLimitWith,
             ChooseNEpsilonLimit,
             LetMax,
             Use,

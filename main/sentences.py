@@ -268,8 +268,106 @@ class ComposedSequenceLimit(Sentence):
         return cls(match[1], match[2])
 
 
+def _sentences_match_diff():
+    return [ApplySequence, IdentifierEpsilon, Identifier]
+
+
+class Diff(Sentence):
+    def __init__(self, sentence1, sentence2):
+        self.sentence1 = sentence1
+        self.sentence2 = sentence2
+
+    def to_lean(self) -> str:
+        return self.sentence1.to_lean() + " - " + self.sentence2.to_lean()
+
+    def to_natural(self, in_math=False) -> str:
+        return self.sentence1.to_lean() + " - " + self.sentence2.to_lean()
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.fullmatch(r"\$ ?(.+) ?- ?(.+) ?\$", s)
+        else:
+            match = re.fullmatch(r" ?(.+) ?- ?(.+) ?", s)
+        if not match:
+            return None
+        match1 = match[1].strip()
+        sentence1 = from_natural(match1, context, _sentences_match_diff(), True)
+        if not sentence1:
+            return None
+        match2 = match[2].strip()
+        sentence2 = from_natural(match2, context, _sentences_match_diff(), True)
+        if not sentence2:
+            return None
+        return cls(sentence1, sentence2)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.fullmatch(r"(.+) - (.+)", s)
+        if not match:
+            return None
+        sentence1 = from_lean(match[1], context, _sentences_match_diff())
+        if not sentence1:
+            return None
+        sentence2 = from_lean(match[2], context, _sentences_match_diff())
+        if not sentence2:
+            return None
+        return cls(sentence1, sentence2)
+
+
+def _sentences_match_div():
+    return [ApplySequence, IdentifierEpsilon, Identifier]
+
+
+class Div(Sentence):
+    def __init__(self, sentence1, sentence2):
+        self.sentence1 = sentence1
+        self.sentence2 = sentence2
+
+    def to_lean(self) -> str:
+        return self.sentence1.to_lean() + " / " + self.sentence2.to_lean()
+
+    def to_natural(self, in_math=False) -> str:
+        return (
+            "$\\frac{"
+            + self.sentence1.to_natural()
+            + "}{"
+            + self.sentence2.to_natural()
+            + "}$"
+        )
+
+    @classmethod
+    def from_natural(cls, s: str, context=None, in_math=False):
+        if not in_math:
+            match = re.fullmatch(r"\$\\frac\{ ?(.+)\}\{ ?(.+)\}\$", s)
+        else:
+            match = re.fullmatch(r"\\frac\{ ?(.+)\}\{ ?(.+)\}", s)
+        if not match:
+            return None
+        sentence1 = from_natural(match[1], context, _sentences_match_div(), True)
+        if not sentence1:
+            return None
+        sentence2 = from_natural(match[2], context, _sentences_match_div(), True)
+        if not sentence2:
+            return None
+        return cls(sentence1, sentence2)
+
+    @classmethod
+    def from_lean(cls, s: str, context=None):
+        match = re.fullmatch(r"(.+)\\(.+)", s)
+        if not match:
+            return None
+        sentence1 = from_lean(match[1], context, _sentences_match_div())
+        if not sentence1:
+            return None
+        sentence2 = from_lean(match[2], context, _sentences_match_div())
+        if not sentence2:
+            return None
+        return cls(sentence1, sentence2)
+
+
 def _sentences_match_inequality():
-    return [AbsoluteDiff, ApplySequence, IdentifierEpsilon, Identifier]
+    return [AbsoluteDiff, Diff, Div, ApplySequence, IdentifierEpsilon, Identifier]
 
 
 class Inequality(Sentence):
