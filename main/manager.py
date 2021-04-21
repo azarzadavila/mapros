@@ -28,6 +28,9 @@ from main.tactic import (
     DoAllSubgoals,
     LinearArithmetic,
     ChooseNEpsilonLimitWith,
+    ByWith,
+    ByDefinitionOfAddFunction,
+    GoalInequalityProperties,
 )
 
 HEADER = r"""import data.real.basic
@@ -179,6 +182,9 @@ class Manager:
             Cases,
             SplitGoal,
             LinearArithmetic,
+            ByWith,
+            ByDefinitionOfAddFunction,
+            GoalInequalityProperties,
         ]
         match = from_natural(nat, self.context, tactics_match)
         if not match:

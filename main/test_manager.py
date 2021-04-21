@@ -157,6 +157,18 @@ sum_limit_proof = [
     r"By inequality properties, $\frac{\epsilon}{3} > 0$",
     r"Let's choose $N_a$ such that H1 uses $\frac{\epsilon}{3}$ (with A2)",
     r"Let's choose $N_b$ such that H2 uses $\frac{\epsilon}{3}$ (with A2)",
+    r"We claim $N_a + N_b$ works",
+    r"Let $n$",
+    r"By inequality properties, $n \geq N_a$",
+    r"By inequality properties, $n \geq N_b$",
+    r"Let's choose n in A3",
+    r"By A8 with A6",
+    r"Let's choose n in A4",
+    r"By A10 with A7",
+    r"Let's use absolute value inequality property on A9 A11 and on goal",
+    r"$(a+b)_n = a_n + b_n$ by definition of addition for functions",
+    r"Let's split the goal and do on all subgoals",
+    r"By inequality properties",
 ]
 
 
