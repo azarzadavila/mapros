@@ -249,7 +249,7 @@ class LetMax(Tactic):
         return cls(match[1], match[2], match[3])
 
     def to_extract(self) -> List:
-        return []
+        return [self.ident]
 
 
 class Use(Tactic):
