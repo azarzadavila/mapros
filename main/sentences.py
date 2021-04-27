@@ -255,6 +255,9 @@ class ComposedSequenceLimit(Sentence):
             return None
         match1 = match[1].strip()
         match2 = match[2].strip()
+        match1_match = re.fullmatch(r"(.+) *\\right", match1)
+        if match1_match:
+            match1 = match1_match[1]
         match2_match = re.fullmatch(r"(.+) *\\right", match2)
         if match2_match:
             match2 = match2_match[1]

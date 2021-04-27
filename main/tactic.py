@@ -767,4 +767,4 @@ class GoalInequalityProperties(Tactic):
         return cls()
 
     def to_extract(self) -> List:
-        pass
+        return []
