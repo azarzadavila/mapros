@@ -2,6 +2,7 @@ import re
 from copy import deepcopy
 
 from main.context import Context
+from main.exceptions import NaturalToLeanError, LeanToNaturalError
 from main.language import from_natural, from_lean
 from main.preprocess import preprocess
 from main.sentences import (
@@ -99,8 +100,10 @@ def extract_variable(state, ident):
 
 
 def lean_goal_to_nat(s, context):
-    sentences_match = COMMON_SENTENCES + [LeanFallBackSentence]
+    sentences_match = COMMON_SENTENCES
     match = from_lean(s, context, sentences_match)
+    if not match:
+        raise LeanToNaturalError()
     return match.to_natural()
 
 
@@ -110,8 +113,10 @@ def lean_error_to_nat(s, context):
 
 
 def lean_variable_to_nat(s, context):
-    sentences_match = COMMON_SENTENCES + [LeanFallBackSentence]
+    sentences_match = COMMON_SENTENCES
     match = from_lean(s, context, sentences_match)
+    if not match:
+        raise LeanToNaturalError()
     return match.to_natural()
 
 
@@ -141,7 +146,7 @@ class Manager:
         sentences_match = [RealValuedSequences, RealDeclaration, SequenceLimit, ForAll]
         match = from_natural(nat, self.context, sentences_match)
         if not match:
-            raise ValueError("Unrecognized hypothesis {}".format(nat))
+            raise NaturalToLeanError("Unrecognized hypothesis {}".format(nat))
         self.hypotheses.append(match)
 
     def set_initial_goal(self, nat):
@@ -149,7 +154,7 @@ class Manager:
         goals_match = [SequenceLimit, ComposedSequenceLimit]
         match = from_natural(nat, self.context, goals_match)
         if not match:
-            raise ValueError("Unrecognized goal {}".format(nat))
+            raise NaturalToLeanError("Unrecognized goal {}".format(nat))
         self.initial_goal = match
         self.context.current_goal = match
         self.initial_context = deepcopy(self.context)
@@ -188,7 +193,7 @@ class Manager:
         ]
         match = from_natural(nat, self.context, tactics_match)
         if not match:
-            raise ValueError("Unrecognized tactic {}".format(nat))
+            raise NaturalToLeanError("Unrecognized tactic {}".format(nat))
         # TODO get lean response if needed
         self.proof.append({"type": "user", "obj": match})
         self.contexts.append(deepcopy(self.context))

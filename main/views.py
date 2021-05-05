@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 
 from leanclient import client_wrapper
+from main.exceptions import NaturalToLeanError, LeanToNaturalError
 from main.manager import (
     Manager,
     extract_goals,
@@ -53,15 +54,23 @@ def get_goals(manager, states):
     initial_goal = goals[0]
     goals = goals[1:]
     if initial_goal:
-        initial_goal = lean_goal_to_nat(initial_goal, manager.initial_context)
+        try:
+            initial_goal = lean_goal_to_nat(initial_goal, manager.initial_context)
+            initial_goal = {"value": initial_goal, "isLean": False}
+        except LeanToNaturalError:
+            initial_goal = {"value": initial_goal, "isLean": True}
     else:
-        initial_goal = ""
+        initial_goal = {"value": "", "isLean": False}
     goals_nat = []
     for i in range(len(goals)):
         if goals[i]:
-            goal = lean_goal_to_nat(goals[i], manager.contexts[i])
+            try:
+                goal = lean_goal_to_nat(goals[i], manager.contexts[i])
+                goal = {"value": goal, "isLean": False}
+            except LeanToNaturalError:
+                goal = {"value": goals[i], "isLean": True}
         else:
-            goal = ""
+            goal = {"value": "", "isLean": False}
         goals_nat.append(goal)
     return initial_goal, goals_nat
 
@@ -74,8 +83,14 @@ def get_sentences(manager, states):
         for ident in manager.to_extract[i]:
             sentence = extract_variable(states[i], ident)
             if sentence:
-                sentence = lean_variable_to_nat(sentence, manager.contexts[i])
-                cur_sentences.append({"ident": ident, "sentence": sentence})
+                is_lean = False
+                try:
+                    sentence = lean_variable_to_nat(sentence, manager.contexts[i])
+                except LeanToNaturalError:
+                    is_lean = True
+                cur_sentences.append(
+                    {"ident": ident, "sentence": sentence, "isLean": is_lean}
+                )
         sentences.append(cur_sentences)
     return sentences
 
@@ -101,27 +116,41 @@ class AskState(APIView):
                     serializer.validated_data["hypotheses"],
                     serializer.validated_data["proofs"],
                 )
-            except ValueError as e:
+            except NaturalToLeanError as e:
                 return Response(
-                    {"detail": "{}".format(e)}, status=status.HTTP_400_BAD_REQUEST
+                    {
+                        "status": "naturalToLeanError",
+                        "detail": "{}".format(e),
+                        "hypotheses_ident": [],
+                        "initial_goal": {"value": "", "isLean": False},
+                        "goals": [],
+                        "sentences": [],
+                    },
+                    status=status.HTTP_400_BAD_REQUEST,
                 )
             text, lines = write_to_lean(manager)
             states, err = client_wrapper.states("result.lean", lines)
             hypotheses_ident = get_hypotheses_ident(manager)
             initial_goal, goals = get_goals(manager, states)
             sentences = get_sentences(manager, states)
+            status_proof = "proofInProgress"
+            detail = ""
             if err:
                 err = extract_error(err)
+                if err != "tactic failed, there are unsolved goals":
+                    status_proof = "leanError"
+                    detail = err
             else:
-                if goals and goals[-1] == "":
+                if goals and goals[-1]["value"] == "":
                     if is_accomplished(states[-1]):
-                        err = "goals accomplished"
+                        status_proof = "proofFinished"
             res = {
+                "status": status_proof,
                 "hypotheses_ident": hypotheses_ident,
                 "initial_goal": initial_goal,
                 "goals": goals,
                 "sentences": sentences,
-                "error": err,
+                "detail": detail,
             }
             return Response(res, status=status.HTTP_200_OK)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
