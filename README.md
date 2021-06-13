@@ -14,6 +14,7 @@ Instructions are available for
 
 ## External sources
 * The proof for the sandiwch theorem available at this [link](http://wwwf.imperial.ac.uk/~buzzard/docs/lean/sandwich.html)
-  is used for testing.
+  is used as basis to include the sandwich theorem in the system.
+  Its header is also used to include some tactics such as "By inequality properties".
 * The majority of the content in leanclient is from the repository 
   [https://github.com/leanprover-community/lean-client-python](https://github.com/leanprover-community/lean-client-python).
